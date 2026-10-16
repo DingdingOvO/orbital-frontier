@@ -1,0 +1,244 @@
+/* Orbital Frontier — 官网轻量 i18n（简 / 繁 / EN） */
+const OF = (() => {
+  const DICT = {
+    zh_CN: {
+      "brand": "ORBITAL FRONTIER",
+      "brand.sub": "星轨计划",
+      "nav.features": "特性",
+      "nav.howto": "玩法",
+      "nav.platforms": "平台",
+      "nav.download": "下载",
+      "hero.kicker": "2D 轨道航天沙盒 · v0.1.0",
+      "hero.t1": "组装你的火箭",
+      "hero.t2": "飞向真实轨道",
+      "hero.lede": "从一枚零件开始：堆叠燃料罐、挂上引擎、分离级段，把载荷送进轨道，再降落在月球上。全部基于真实的引力、大气阻力与开普勒轨道力学。",
+      "hero.cta1": "立即下载",
+      "hero.cta2": "网页试玩",
+      "hero.m1": "语言", "hero.m2": "星球", "hero.m3": "零件类型", "hero.m4": "时间加速",
+      "feat.eyebrow": "核心特性",
+      "feat.title": "像工程师一样造火箭",
+      "feat.sub": "每一个零件都有质量、推力与比冲，每一级分离都会改变你的飞行剖面。",
+      "feat.1.t": "自由组装", "feat.1.d": "12 种零件自由堆叠：指令舱、燃料罐、引擎、分离器、尾翼、降落伞……实时显示质量、Δv 与推重比。",
+      "feat.2.t": "真实轨道物理", "feat.2.d": "牛顿引力、指数大气模型、阻力与开普勒轨道。远地点、近地点、轨道周期实时计算。",
+      "feat.3.t": "时间加速", "feat.3.d": "1× 到 1000× 可调，等待下一次点火窗口不再漫长。物理步长自适应，轨道依然稳定。",
+      "feat.4.t": "多星球场景", "feat.4.d": "地球、月球与火星，各自拥有独立的半径、引力参数与大气条件，可着陆、可入轨。",
+      "feat.5.t": "Mod 支持", "feat.5.d": "内置 Mod 管理器，导入 .zip 即可扩展零件与玩法，随时启用或停用。",
+      "feat.6.t": "三语言界面", "feat.6.d": "简体中文、繁體中文与 English，游戏内一键即时切换，无需重启。",
+      "how.eyebrow": "四步上天",
+      "how.title": "从工坊到着陆",
+      "how.1.t": "挑零件", "how.1.d": "在火箭工坊中点击零件，从指令舱开始向下堆叠。",
+      "how.2.t": "组装多级", "how.2.d": "用分离器切分级段，为每一级配置燃料与引擎。",
+      "how.3.t": "发射入轨", "how.3.d": "推节流阀点火，做重力转向，把近地点抬到大气层之上。",
+      "how.4.t": "变轨与着陆", "how.4.d": "用时间加速等待窗口，反推减速，安全降落在月球表面。",
+      "plat.eyebrow": "跨平台",
+      "plat.title": "一套工程，全平台运行",
+      "plat.sub": "基于 Godot 4.7 原生渲染，不套壳、不依赖浏览器内核。",
+      "plat.available": "已支持 · APK 直装",
+      "plat.available2": "已支持 · 浏览器直接玩",
+      "plat.soon": "开发中", "plat.planned": "计划中",
+      "cta.title": "准备好点火了吗？",
+      "cta.sub": "v0.1.0 最小可执行版本现已开放测试，Android 端优先。",
+      "cta.btn1": "下载 Android APK",
+      "cta.btn2": "在浏览器试玩",
+      "foot.made": "自制引擎 · Godot 4.7 · 原创素材",
+      "dl.eyebrow": "下载",
+      "dl.title": "选择你的平台",
+      "dl.sub": "当前优先测试 Android 端，Web 版可直接在浏览器中运行。",
+      "dl.android.n": "Android",
+      "dl.android.d": "APK 安装包 · 原生渲染 · 支持触摸操作",
+      "dl.android.btn": "下载 APK",
+      "dl.android.tag1": "arm64-v8a",
+      "dl.android.tag2": "推荐",
+      "dl.web.n": "Web (WebAssembly)",
+      "dl.web.d": "无需安装，打开浏览器即可开始建造与发射",
+      "dl.web.btn": "立即试玩",
+      "dl.web.tag1": "浏览器",
+      "dl.pc.n": "Windows / macOS / Linux",
+      "dl.pc.d": "桌面原生版本正在构建中",
+      "dl.pc.btn": "开发中",
+      "dl.ios.n": "iOS",
+      "dl.ios.d": "计划中，等待 Apple 开发者账号",
+      "dl.ios.btn": "计划中",
+      "dl.soon": "即将推出",
+      "dl.howto": "安装说明",
+      "dl.howto.1": "下载 APK 文件到手机。",
+      "dl.howto.2": "在系统设置中允许「安装未知来源应用」。",
+      "dl.howto.3": "点击 APK 完成安装，打开即可开始建造火箭。",
+      "dl.note": "提示：Android 端为优先测试平台，其余平台正在构建；网页版可直接游玩，无需安装。",
+      "dl.ver": "版本",
+      "dl.size": "大小",
+      "dl.date": "更新",
+      "dl.req": "系统要求"
+    },
+    zh_TW: {
+      "brand": "ORBITAL FRONTIER",
+      "brand.sub": "星軌計劃",
+      "nav.features": "特性",
+      "nav.howto": "玩法",
+      "nav.platforms": "平台",
+      "nav.download": "下載",
+      "hero.kicker": "2D 軌道航太沙盒 · v0.1.0",
+      "hero.t1": "組裝你的火箭",
+      "hero.t2": "飛向真實軌道",
+      "hero.lede": "從一枚零件開始：堆疊燃料罐、掛上引擎、分離級段，把載荷送進軌道，再降落在月球上。全部基於真實的引力、大氣阻力與克卜勒軌道力學。",
+      "hero.cta1": "立即下載",
+      "hero.cta2": "網頁試玩",
+      "hero.m1": "語言", "hero.m2": "星球", "hero.m3": "零件類型", "hero.m4": "時間加速",
+      "feat.eyebrow": "核心特性",
+      "feat.title": "像工程師一樣造火箭",
+      "feat.sub": "每一個零件都有質量、推力與比衝，每一次級段分離都會改變你的飛行剖面。",
+      "feat.1.t": "自由組裝", "feat.1.d": "12 種零件自由堆疊：指令艙、燃料罐、引擎、分離器、尾翼、降落傘……即時顯示質量、Δv 與推重比。",
+      "feat.2.t": "真實軌道物理", "feat.2.d": "牛頓引力、指數大氣模型、阻力與克卜勒軌道。遠地點、近地點、軌道週期即時計算。",
+      "feat.3.t": "時間加速", "feat.3.d": "1× 到 1000× 可調，等待下一次點火窗口不再漫長。物理步長自適應，軌道依然穩定。",
+      "feat.4.t": "多星球場景", "feat.4.d": "地球、月球與火星，各自擁有獨立的半徑、引力參數與大氣條件，可著陸、可入軌。",
+      "feat.5.t": "Mod 支援", "feat.5.d": "內建 Mod 管理器，匯入 .zip 即可擴充零件與玩法，隨時啟用或停用。",
+      "feat.6.t": "三語言介面", "feat.6.d": "簡體中文、繁體中文與 English，遊戲內一鍵即時切換，無需重啟。",
+      "how.eyebrow": "四步上天",
+      "how.title": "從工坊到著陸",
+      "how.1.t": "挑零件", "how.1.d": "在火箭工坊中點擊零件，從指令艙開始向下堆疊。",
+      "how.2.t": "組裝多級", "how.2.d": "用分離器切分級段，為每一級配置燃料與引擎。",
+      "how.3.t": "發射入軌", "how.3.d": "推節流閥點火，做重力轉向，把近地點抬到大氣層之上。",
+      "how.4.t": "變軌與著陸", "how.4.d": "用時間加速等待窗口，反推減速，安全降落在月球表面。",
+      "plat.eyebrow": "跨平台",
+      "plat.title": "一套工程，全平台運行",
+      "plat.sub": "基於 Godot 4.7 原生渲染，不套殼、不依賴瀏覽器核心。",
+      "plat.available": "已支援 · APK 直裝",
+      "plat.available2": "已支援 · 瀏覽器直接玩",
+      "plat.soon": "開發中", "plat.planned": "計劃中",
+      "cta.title": "準備好點火了嗎？",
+      "cta.sub": "v0.1.0 最小可執行版本現已開放測試，Android 端優先。",
+      "cta.btn1": "下載 Android APK",
+      "cta.btn2": "在瀏覽器試玩",
+      "foot.made": "自製引擎 · Godot 4.7 · 原創素材",
+      "dl.eyebrow": "下載",
+      "dl.title": "選擇你的平台",
+      "dl.sub": "目前優先測試 Android 端，Web 版可直接在瀏覽器中執行。",
+      "dl.android.n": "Android",
+      "dl.android.d": "APK 安裝包 · 原生渲染 · 支援觸控操作",
+      "dl.android.btn": "下載 APK",
+      "dl.android.tag1": "arm64-v8a",
+      "dl.android.tag2": "推薦",
+      "dl.web.n": "Web (WebAssembly)",
+      "dl.web.d": "無需安裝，打開瀏覽器即可開始建造與發射",
+      "dl.web.btn": "立即試玩",
+      "dl.web.tag1": "瀏覽器",
+      "dl.pc.n": "Windows / macOS / Linux",
+      "dl.pc.d": "桌面原生版本正在建置中",
+      "dl.pc.btn": "開發中",
+      "dl.ios.n": "iOS",
+      "dl.ios.d": "計劃中，等待 Apple 開發者帳號",
+      "dl.ios.btn": "計劃中",
+      "dl.soon": "即將推出",
+      "dl.howto": "安裝說明",
+      "dl.howto.1": "下載 APK 檔案到手機。",
+      "dl.howto.2": "在系統設定中允許「安裝未知來源應用」。",
+      "dl.howto.3": "點擊 APK 完成安裝，打開即可開始建造火箭。",
+      "dl.note": "提示：Android 端為優先測試平台，其餘平台正在建置；網頁版可直接遊玩，無需安裝。",
+      "dl.ver": "版本", "dl.size": "大小", "dl.date": "更新", "dl.req": "系統要求"
+    },
+    en: {
+      "brand": "ORBITAL FRONTIER",
+      "brand.sub": "星轨计划",
+      "nav.features": "Features",
+      "nav.howto": "Gameplay",
+      "nav.platforms": "Platforms",
+      "nav.download": "Download",
+      "hero.kicker": "2D ORBITAL SANDBOX · v0.1.0",
+      "hero.t1": "Build your rocket.",
+      "hero.t2": "Reach real orbit.",
+      "hero.lede": "Start with a single part: stack fuel tanks, mount engines, split stages, push your payload into orbit, then land on the Moon — all driven by real gravity, atmospheric drag and Keplerian orbits.",
+      "hero.cta1": "Download now",
+      "hero.cta2": "Play in browser",
+      "hero.m1": "Languages", "hero.m2": "Bodies", "hero.m3": "Part types", "hero.m4": "Time warp",
+      "feat.eyebrow": "CORE FEATURES",
+      "feat.title": "Engineer your own launcher",
+      "feat.sub": "Every part has real mass, thrust and specific impulse. Every separation reshapes your flight profile.",
+      "feat.1.t": "Free assembly", "feat.1.d": "12 part types to stack freely: pods, tanks, engines, decouplers, fins, parachutes — with live mass, Δv and TWR readouts.",
+      "feat.2.t": "True orbital physics", "feat.2.d": "Newtonian gravity, exponential atmosphere, drag and Kepler orbits. Apoapsis, periapsis and period computed live.",
+      "feat.3.t": "Time warp", "feat.3.d": "Adjustable from 1× to 1000×, so waiting for a burn window never drags. Adaptive physics steps keep orbits stable.",
+      "feat.4.t": "Multiple worlds", "feat.4.d": "Earth, Moon and Mars — each with its own radius, gravity parameter and atmosphere. Land or orbit at will.",
+      "feat.5.t": "Mod support", "feat.5.d": "A built-in mod manager: import a .zip to extend parts and gameplay, toggle on or off anytime.",
+      "feat.6.t": "Trilingual UI", "feat.6.d": "Simplified Chinese, Traditional Chinese and English — switch instantly in-game, no restart.",
+      "how.eyebrow": "FOUR STEPS UP",
+      "how.title": "From workshop to touchdown",
+      "how.1.t": "Pick parts", "how.1.d": "Tap parts in the rocket workshop and stack them downward from the command pod.",
+      "how.2.t": "Build stages", "how.2.d": "Split stages with decouplers and give each one its own fuel and engines.",
+      "how.3.t": "Launch & orbit", "how.3.d": "Open the throttle, ignite, perform a gravity turn and raise periapsis above the atmosphere.",
+      "how.4.t": "Transfer & land", "how.4.d": "Warp to the next window, burn retrograde, and touch down softly on the Moon.",
+      "plat.eyebrow": "CROSS-PLATFORM",
+      "plat.title": "One project, every platform",
+      "plat.sub": "Built on Godot 4.7 with native rendering — no web view wrappers, no browser engine.",
+      "plat.available": "Available · direct APK",
+      "plat.available2": "Available · play in browser",
+      "plat.soon": "In development", "plat.planned": "Planned",
+      "cta.title": "Ready for ignition?",
+      "cta.sub": "v0.1.0 minimum viable build is open for testing, starting with Android.",
+      "cta.btn1": "Download Android APK",
+      "cta.btn2": "Play in browser",
+      "foot.made": "Custom build · Godot 4.7 · Original assets",
+      "dl.eyebrow": "DOWNLOADS",
+      "dl.title": "Choose your platform",
+      "dl.sub": "Android is the priority test target; the web build runs directly in your browser.",
+      "dl.android.n": "Android",
+      "dl.android.d": "APK package · native rendering · touch controls",
+      "dl.android.btn": "Download APK",
+      "dl.android.tag1": "arm64-v8a",
+      "dl.android.tag2": "Recommended",
+      "dl.web.n": "Web (WebAssembly)",
+      "dl.web.d": "Nothing to install — open the browser and start building",
+      "dl.web.btn": "Play now",
+      "dl.web.tag1": "Browser",
+      "dl.pc.n": "Windows / macOS / Linux",
+      "dl.pc.d": "Native desktop builds are being prepared",
+      "dl.pc.btn": "In development",
+      "dl.ios.n": "iOS",
+      "dl.ios.d": "Planned, pending an Apple developer account",
+      "dl.ios.btn": "Planned",
+      "dl.soon": "Coming soon",
+      "dl.howto": "Installation",
+      "dl.howto.1": "Download the APK file to your phone.",
+      "dl.howto.2": "Allow installing apps from unknown sources in system settings.",
+      "dl.howto.3": "Tap the APK to install, then open it and start building rockets.",
+      "dl.note": "Note: Android is the priority test platform and other builds are in progress; the web build is playable right away with no installation.",
+      "dl.ver": "Version", "dl.size": "Size", "dl.date": "Updated", "dl.req": "Requirements"
+    }
+  };
+
+  let cur = 'zh_CN';
+
+  function setLang(l) {
+    if (!DICT[l]) return;
+    cur = l;
+    try { localStorage.setItem('of_lang', l); } catch (e) {}
+    document.documentElement.lang = l === 'en' ? 'en' : (l === 'zh_TW' ? 'zh-Hant' : 'zh-CN');
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n');
+      const v = DICT[l][k];
+      if (v !== undefined) el.textContent = v;
+    });
+    document.querySelectorAll('#lang button').forEach(b => {
+      b.classList.toggle('on', b.dataset.lang === l);
+    });
+  }
+
+  function initI18n() {
+    document.querySelectorAll('#lang button').forEach(b => {
+      b.addEventListener('click', () => setLang(b.dataset.lang));
+    });
+    let saved = null;
+    try { saved = localStorage.getItem('of_lang'); } catch (e) {}
+    if (!saved) {
+      const n = (navigator.language || 'zh-CN').toLowerCase();
+      if (n.startsWith('zh')) {
+        saved = (n.includes('tw') || n.includes('hk') || n.includes('hant')) ? 'zh_TW' : 'zh_CN';
+      } else if (n.startsWith('en')) {
+        saved = 'en';
+      } else {
+        saved = 'zh_CN';
+      }
+    }
+    setLang(saved);
+  }
+
+  return { initI18n, setLang, get lang() { return cur; } };
+})();

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#101a33"/>
+      <stop offset="1" stop-color="#05070f"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eaf2ff"/>
+      <stop offset="1" stop-color="#9fb6d8"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fe7ff"/>
+      <stop offset="1" stop-color="#2a6bff"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="26" fill="url(#bg)"/>
+  <ellipse cx="64" cy="64" rx="50" ry="20" fill="none" stroke="#2f4a80" stroke-width="3" transform="rotate(-24 64 64)"/>
+  <path d="M64 16c11 12 17 27 17 45v9H47v-9c0-18 6-33 17-45z" fill="url(#body)"/>
+  <path d="M47 70l-13 20 13-6V70z" fill="#4a7dff"/>
+  <path d="M81 70l13 20-13-6V70z" fill="#4a7dff"/>
+  <circle cx="64" cy="46" r="7" fill="#0d1526"/>
+  <circle cx="64" cy="46" r="4" fill="#6fd8ff"/>
+  <path d="M56 84h16l-4 16-4 10-4-10-4-16z" fill="url(#flame)"/>
+</svg>

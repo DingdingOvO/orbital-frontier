@@ -1,0 +1,32 @@
+# ══════════════════════════════════════════════════════════
+#  ORBITAL FRONTIER / 星轨计划
+# ══════════════════════════════════════════════════════════
+
+# ── Godot 缓存与本地产物 ──
+.godot/
+*.translation
+
+# ── 构建产物（体积巨大，可从源码重新生成）──
+# 覆盖 sfs-game/build/、sfs-game/android/build/ 等所有同名目录
+# 其中 sfs-game/android/build/ 在本地约 945 MB（Gradle 中间产物）
+build/
+.gradle/
+
+# ── 代码编辑器 / IDE ──
+.vscode/
+.idea/
+*.swp
+*~
+
+# ── 系统文件 ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── 运行环境/沙箱相关 ──
+.codebuddy/
+.cloudstudio
+
+# ── 临时文件 ──
+*.tmp
+*.log
