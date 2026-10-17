@@ -1,5 +1,5 @@
 extends Control
-## AboutPage — 关于
+## AboutPage — 关于（统一页面骨架：返回 + 标题 + 顶对齐内容区）
 
 var nav: Control
 var _texts: Array = []
@@ -13,78 +13,62 @@ func _ready() -> void:
 	Loc.locale_changed.connect(func(_c: String): _refresh())
 	_refresh()
 
-func _bind(node: Object, key: String) -> void:
-	_texts.append({"node": node, "key": key})
-
 func _build() -> void:
-	var root := MarginContainer.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("margin_left", 90)
-	root.add_theme_constant_override("margin_right", 90)
-	root.add_theme_constant_override("margin_top", 48)
-	root.add_theme_constant_override("margin_bottom", 44)
-	add_child(root)
+	var sc := UiKit.page_scaffold(nav, "about.title", _texts)
+	add_child(sc.root)
+	var body: VBoxContainer = sc.body
 
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 16)
-	root.add_child(col)
+	# ── 简介 ──
+	var c1 := UiKit.panel()
+	body.add_child(c1)
+	var d := UiKit.label("", UiKit.FS_SUB, UiKit.TEXT)
+	d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_texts.append({"node": d, "key": "about.desc"})
+	c1.add_child(d)
 
-	# 顶部返回 + 标题
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 18)
-	col.add_child(head)
-	var back := UiKit.ghost_button("←  " + Loc.t("common.back"))
-	back.pressed.connect(func(): nav.go_back())
-	head.add_child(back)
-	var t := UiKit.title("", 30)
-	_bind(t, "about.title")
-	head.add_child(t)
+	# ── 支持平台 ──
+	var c2 := UiKit.panel()
+	body.add_child(c2)
+	var v2 := VBoxContainer.new()
+	v2.add_theme_constant_override("separation", UiKit.SP_M)
+	c2.add_child(v2)
+	v2.add_child(UiKit.section_label("about.platforms", _texts))
+	_plat_row(v2, "Android (APK)", "arm64-v8a · 27 MB", 1)
+	_plat_row(v2, "Web (WebAssembly)", "Chrome / Edge / Firefox / Safari", 1)
+	_plat_row(v2, "Windows / macOS / Linux", "about.soon", 0)
+	_plat_row(v2, "iOS", "about.planned", 0)
 
-	col.add_child(UiKit.divider())
-
-	var card := UiKit.panel()
-	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	col.add_child(card)
-
-	var inner := VBoxContainer.new()
-	inner.add_theme_constant_override("separation", 14)
-	card.add_child(inner)
-
-	var desc := UiKit.label("", 19, UiKit.TEXT)
-	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc.custom_minimum_size = Vector2(760, 0)
-	_bind(desc, "about.desc")
-	inner.add_child(desc)
-
-	inner.add_child(UiKit.hsep(6))
-
-	var pl := UiKit.label("", 16, UiKit.CYAN)
-	_bind(pl, "about.platforms")
-	inner.add_child(pl)
-
-	var plat := RichTextLabel.new()
-	plat.bbcode_enabled = true
-	plat.fit_content = true
-	plat.scroll_active = false
-	plat.custom_minimum_size = Vector2(0, 120)
-	plat.add_theme_font_override("normal_font", UiKit.font_base if UiKit.font_base else ThemeDB.fallback_font)
-	plat.add_theme_font_size_override("normal_font_size", 16)
-	plat.add_theme_color_override("default_color", UiKit.TEXT_DIM)
-	plat.text = "[color=#4ddb8b]●[/color] Android (APK)   [color=#8ea0c0]arm64-v8a / armeabi-v7a[/color]\n" \
-		+ "[color=#4ddb8b]●[/color] Web (WebAssembly)   [color=#8ea0c0]Chrome / Edge / Firefox / Safari[/color]\n" \
-		+ "[color=#ffb648]○[/color] Windows / macOS / Linux   [color=#8ea0c0]in progress[/color]\n" \
-		+ "[color=#ffb648]○[/color] iOS   [color=#8ea0c0]planned[/color]"
-	inner.add_child(plat)
-
-	inner.add_child(UiKit.hsep(6))
-	var cr := UiKit.label("", 14, UiKit.TEXT_MUTE)
-	_bind(cr, "about.credits")
-	inner.add_child(cr)
-
-	# 底部版本
-	var ver := UiKit.label("", 13, UiKit.TEXT_MUTE)
+	# ── 制作信息 ──
+	var c3 := UiKit.panel(UiKit.PANEL_LO)
+	body.add_child(c3)
+	var v3 := VBoxContainer.new()
+	v3.add_theme_constant_override("separation", UiKit.SP_XS)
+	c3.add_child(v3)
+	var cr := UiKit.label("", UiKit.FS_SMALL, UiKit.TEXT_DIM)
+	_texts.append({"node": cr, "key": "about.credits"})
+	v3.add_child(cr)
+	var ver := UiKit.label("", UiKit.FS_TINY, UiKit.TEXT_MUTE)
 	_texts.append({"node": ver, "key": "app.version", "args": {"v": "0.1.0"}})
-	col.add_child(ver)
+	v3.add_child(ver)
+
+## 平台行：状态点 + 名称 + 说明（note 以 "about." 开头则视为本地化 key）
+func _plat_row(parent: Control, name: String, note: String, ready: int) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", UiKit.SP_M)
+	row.custom_minimum_size = Vector2(0, 30)
+	var dot := UiKit.label("●" if ready == 1 else "○", UiKit.FS_SMALL,
+		UiKit.OK if ready == 1 else UiKit.WARN)
+	row.add_child(dot)
+	var n := UiKit.label(name, UiKit.FS_BODY, UiKit.TEXT)
+	n.custom_minimum_size = Vector2(240, 0)
+	row.add_child(n)
+	var s := UiKit.label("", UiKit.FS_SMALL, UiKit.TEXT_MUTE)
+	if note.begins_with("about."):
+		_texts.append({"node": s, "key": note})
+	else:
+		s.text = note
+	row.add_child(s)
+	parent.add_child(row)
 
 func _refresh() -> void:
 	for e in _texts:

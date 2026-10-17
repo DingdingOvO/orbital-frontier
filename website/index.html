@@ -6,21 +6,19 @@
 <title>星轨计划 ORBITAL FRONTIER — 2D 轨道航天沙盒</title>
 <meta name="description" content="自由组装多级火箭，在真实引力场中发射、入轨、变轨与着陆。跨平台 2D 轨道航天模拟游戏。">
 <link rel="stylesheet" href="assets/style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230a1020'/><circle cx='16' cy='16' r='5' fill='%233b82f6'/><ellipse cx='16' cy='16' rx='13' ry='6' fill='none' stroke='%234ff0df' stroke-width='1.6' transform='rotate(-25 16 16)'/></svg>">
 </head>
 <body>
-<div id="stars"></div>
 
 <header>
   <div class="wrap nav">
     <a class="brand" href="index.html">
-      <span class="mark" data-i18n="brand">ORBITAL FRONTIER</span>
+      <span class="mark">ORBITAL FRONTIER</span>
       <span class="sub" data-i18n="brand.sub">星轨计划</span>
     </a>
     <nav class="links">
       <a class="link" href="#features" data-i18n="nav.features">特性</a>
-      <a class="link" href="#howto" data-i18n="nav.howto">玩法</a>
-      <a class="link" href="#platforms" data-i18n="nav.platforms">平台</a>
+      <a class="link" href="#shots" data-i18n="nav.shots">截图</a>
       <a class="link" href="download.html" data-i18n="nav.download">下载</a>
     </nav>
     <div class="lang" id="lang">
@@ -31,73 +29,56 @@
   </div>
 </header>
 
-<!-- Hero -->
+<!-- ── Hero ───────────────────────────────── -->
 <section class="hero">
   <div class="wrap hero-grid">
     <div class="reveal">
       <div class="kicker" data-i18n="hero.kicker">2D 轨道航天沙盒 · v0.1.0</div>
-      <h1 class="title">
-        <span data-i18n="hero.t1">组装你的火箭</span><br>
-        <span class="glow" data-i18n="hero.t2">飞向真实轨道</span>
-      </h1>
+      <h1><span data-i18n="hero.t1">组装你的火箭</span><br><em data-i18n="hero.t2">飞向真实轨道</em></h1>
       <p class="lede" data-i18n="hero.lede">从一枚零件开始：堆叠燃料罐、挂上引擎、分离级段，把载荷送进轨道，再降落在月球上。全部基于真实的引力、大气阻力与开普勒轨道力学。</p>
       <div class="cta">
-        <a class="btn primary lg" href="download.html" data-i18n="hero.cta1">立即下载</a>
-        <a class="btn ghost lg" href="play/" data-i18n="hero.cta2">网页试玩</a>
+        <a class="btn primary" href="play/" data-i18n="hero.cta2">网页试玩</a>
+        <a class="btn" href="download.html" data-i18n="hero.cta1">下载 Android 版</a>
       </div>
-      <div class="hero-meta">
+      <div class="meta">
         <div><b>3</b><span data-i18n="hero.m1">语言</span></div>
         <div><b>3</b><span data-i18n="hero.m2">星球</span></div>
-        <div><b>12</b><span data-i18n="hero.m3">零件类型</span></div>
+        <div><b>13</b><span data-i18n="hero.m3">零件类型</span></div>
         <div><b>1000×</b><span data-i18n="hero.m4">时间加速</span></div>
       </div>
     </div>
-    <div class="reveal">
-      <div class="orbit-card">
-        <div class="planet"></div>
-        <div class="spinner"><div class="ring" style="width:86%;height:86%"><div class="rocket-dot" style="left:50%;top:-6px"></div></div></div>
-        <div class="spinner2"><div class="ring" style="width:60%;height:60%"><div class="rocket-dot" style="left:-6px;top:50%;background:var(--accent);box-shadow:0 0 18px var(--accent)"></div></div></div>
-      </div>
-    </div>
+    <figure class="shot reveal">
+      <img src="assets/shots/workshop.png" alt="火箭工坊" loading="lazy">
+      <figcaption data-i18n="shot.workshop">火箭工坊 · 拖拽组装 · 实时 Δv 与推重比</figcaption>
+    </figure>
   </div>
 </section>
 
-<!-- 特性 -->
-<section id="features">
+<!-- ── 特性 ───────────────────────────────── -->
+<section id="features" class="tight">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow" data-i18n="feat.eyebrow">核心特性</div>
       <h2 data-i18n="feat.title">像工程师一样造火箭</h2>
       <p data-i18n="feat.sub">每一个零件都有质量、推力与比冲，每一级分离都会改变你的飞行剖面。</p>
     </div>
-    <div class="grid c3">
+    <div class="grid c4">
       <div class="card reveal">
-        <div class="ico">🔧</div>
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.2 2.2M16.9 16.9l2.2 2.2M19.1 4.9l-2.2 2.2M7.1 16.9l-2.2 2.2"/></svg></div>
         <h3 data-i18n="feat.1.t">自由组装</h3>
-        <p data-i18n="feat.1.d">12 种零件自由堆叠：指令舱、燃料罐、引擎、分离器、尾翼、降落伞……实时显示质量、Δv 与推重比。</p>
+        <p data-i18n="feat.1.d">13 种零件自由堆叠：指令舱、燃料罐、引擎、分离器、尾翼、降落伞……实时显示质量、Δv 与推重比。</p>
       </div>
       <div class="card reveal">
-        <div class="ico">🪐</div>
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4.6" transform="rotate(-25 12 12)"/></svg></div>
         <h3 data-i18n="feat.2.t">真实轨道物理</h3>
         <p data-i18n="feat.2.d">牛顿引力、指数大气模型、阻力与开普勒轨道。远地点、近地点、轨道周期实时计算。</p>
       </div>
       <div class="card reveal">
-        <div class="ico">⏩</div>
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 5.5l6.5 6.5L5 18.5zM12.5 5.5L19 12l-6.5 6.5z"/></svg></div>
         <h3 data-i18n="feat.3.t">时间加速</h3>
         <p data-i18n="feat.3.d">1× 到 1000× 可调，等待下一次点火窗口不再漫长。物理步长自适应，轨道依然稳定。</p>
       </div>
       <div class="card reveal">
-        <div class="ico">🌍</div>
-        <h3 data-i18n="feat.4.t">多星球场景</h3>
-        <p data-i18n="feat.4.d">地球、月球与火星，各自拥有独立的半径、引力参数与大气条件，可着陆、可入轨。</p>
-      </div>
-      <div class="card reveal">
-        <div class="ico">🧩</div>
-        <h3 data-i18n="feat.5.t">Mod 支持</h3>
-        <p data-i18n="feat.5.d">内置 Mod 管理器，导入 .zip 即可扩展零件与玩法，随时启用或停用。</p>
-      </div>
-      <div class="card reveal">
-        <div class="ico">🌐</div>
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></div>
         <h3 data-i18n="feat.6.t">三语言界面</h3>
         <p data-i18n="feat.6.d">简体中文、繁體中文与 English，游戏内一键即时切换，无需重启。</p>
       </div>
@@ -105,62 +86,65 @@
   </div>
 </section>
 
-<!-- 玩法 -->
-<section id="howto">
+<!-- ── 截图 ───────────────────────────────── -->
+<section id="shots" class="tight">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow" data-i18n="how.eyebrow">四步上天</div>
-      <h2 data-i18n="how.title">从工坊到着陆</h2>
+      <h2 data-i18n="shots.title">游戏画面</h2>
     </div>
-    <div class="steps">
-      <div class="step reveal">
-        <h4 data-i18n="how.1.t">挑零件</h4>
-        <p data-i18n="how.1.d">在火箭工坊中点击零件，从指令舱开始向下堆叠。</p>
-      </div>
-      <div class="step reveal">
-        <h4 data-i18n="how.2.t">组装多级</h4>
-        <p data-i18n="how.2.d">用分离器切分级段，为每一级配置燃料与引擎。</p>
-      </div>
-      <div class="step reveal">
-        <h4 data-i18n="how.3.t">发射入轨</h4>
-        <p data-i18n="how.3.d">推节流阀点火，做重力转向，把近地点抬到大气层之上。</p>
-      </div>
-      <div class="step reveal">
-        <h4 data-i18n="how.4.t">变轨与着陆</h4>
-        <p data-i18n="how.4.d">用时间加速等待窗口，反推减速，安全降落在月球表面。</p>
-      </div>
+    <div class="grid c2">
+      <figure class="shot reveal">
+        <img src="assets/shots/flight.png" alt="入轨飞行" loading="lazy">
+        <figcaption data-i18n="shot.flight">飞行控制 · 实时轨道根数 · 预测轨迹</figcaption>
+      </figure>
+      <figure class="shot reveal">
+        <img src="assets/shots/menu.png" alt="主菜单" loading="lazy">
+        <figcaption data-i18n="shot.menu">主菜单 · 简中 / 繁中 / English</figcaption>
+      </figure>
     </div>
   </div>
 </section>
 
-<!-- 平台 -->
-<section id="platforms">
+<!-- ── 下载 ───────────────────────────────── -->
+<section class="tight">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow" data-i18n="plat.eyebrow">跨平台</div>
-      <h2 data-i18n="plat.title">一套工程，全平台运行</h2>
+      <h2 data-i18n="plat.title">选择你的平台</h2>
       <p data-i18n="plat.sub">基于 Godot 4.7 原生渲染，不套壳、不依赖浏览器内核。</p>
     </div>
-    <div class="plat">
-      <div class="item reveal"><div class="dot"></div><div><div class="nm">Android</div><div class="st" data-i18n="plat.available">已支持 · APK 直装</div></div></div>
-      <div class="item reveal"><div class="dot"></div><div><div class="nm">Web (WASM)</div><div class="st" data-i18n="plat.available2">已支持 · 浏览器直接玩</div></div></div>
-      <div class="item reveal soon"><div class="dot"></div><div><div class="nm">Windows</div><div class="st" data-i18n="plat.soon">开发中</div></div></div>
-      <div class="item reveal soon"><div class="dot"></div><div><div class="nm">macOS</div><div class="st" data-i18n="plat.soon">开发中</div></div></div>
-      <div class="item reveal soon"><div class="dot"></div><div><div class="nm">Linux</div><div class="st" data-i18n="plat.soon">开发中</div></div></div>
-      <div class="item reveal soon"><div class="dot"></div><div><div class="nm">iOS</div><div class="st" data-i18n="plat.planned">计划中</div></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section>
-  <div class="wrap center reveal">
-    <div class="card" style="padding:52px 32px">
-      <h2 style="font-size:34px;margin-bottom:12px" data-i18n="cta.title">准备好点火了吗？</h2>
-      <p style="color:var(--dim);margin-bottom:26px" data-i18n="cta.sub">v0.1.0 最小可执行版本现已开放测试，Android 端优先。</p>
-      <div class="cta" style="justify-content:center">
-        <a class="btn primary lg" href="download.html" data-i18n="cta.btn1">下载 Android APK</a>
-        <a class="btn ghost lg" href="play/" data-i18n="cta.btn2">在浏览器试玩</a>
+    <div class="rows">
+      <div class="row hl reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 8.5h12v7a1 1 0 0 1-1 1h-1v3.2a1.3 1.3 0 1 1-2.6 0V16.5h-2.8v3.2a1.3 1.3 0 1 1-2.6 0V16.5H7a1 1 0 0 1-1-1zM4.2 8.5a1.1 1.1 0 0 1 1.1 1.1v4.2a1.1 1.1 0 0 1-2.2 0V9.6a1.1 1.1 0 0 1 1.1-1.1zm15.6 0a1.1 1.1 0 0 1 1.1 1.1v4.2a1.1 1.1 0 0 1-2.2 0V9.6a1.1 1.1 0 0 1 1.1-1.1zM15.6 3.2l1 1.7a5.6 5.6 0 0 0-4.6 0l1-1.7a.6.6 0 0 1 .8-.2.6.6 0 0 1 .2.8zM8.4 3.2a.6.6 0 0 1 .8-.2l1 1.7a5.6 5.6 0 0 0-4.6 0l1-1.7a.6.6 0 0 1 .8-.2zM8 7.4h8a4.4 4.4 0 0 0-8 0z" transform="translate(0,-.5)"/></svg></div>
+        <div class="info">
+          <div class="n">Android</div>
+          <div class="d" data-i18n="plat.android.d">APK 直装 · arm64-v8a · 27 MB · minSdk 24</div>
+          <div style="margin-top:6px"><span class="tag ok" data-i18n="plat.available">已支持</span></div>
+        </div>
+        <div class="act">
+          <a class="btn primary sm" href="downloads/orbital-frontier.apk" download data-i18n="dl.btn">下载 APK</a>
+        </div>
+      </div>
+      <div class="row reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></div>
+        <div class="info">
+          <div class="n">Web (WebAssembly)</div>
+          <div class="d" data-i18n="plat.web.d">Chrome / Edge / Firefox / Safari · 无需安装</div>
+          <div style="margin-top:6px"><span class="tag ok" data-i18n="plat.available">已支持</span></div>
+        </div>
+        <div class="act">
+          <a class="btn sm" href="play/" data-i18n="plat.play">立即试玩</a>
+        </div>
+      </div>
+      <div class="row dim reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 20h8"/></svg></div>
+        <div class="info">
+          <div class="n">Windows / macOS / Linux / iOS</div>
+          <div class="d" data-i18n="plat.desk.d">Godot 工程已配好导出预设，可自行打包</div>
+          <div style="margin-top:6px"><span class="tag warn" data-i18n="plat.soon">开发中</span></div>
+        </div>
+        <div class="act">
+          <a class="btn sm" href="https://github.com/DingdingOvO/orbital-frontier" target="_blank" rel="noopener" data-i18n="plat.src">查看源码</a>
+        </div>
       </div>
     </div>
   </div>
@@ -169,20 +153,14 @@
 <footer>
   <div class="wrap foot">
     <div>© 2026 Orbital Frontier · <span data-i18n="foot.made">自制引擎 · Godot 4.7 · 原创素材</span></div>
-    <div style="display:flex;gap:20px">
+    <div style="display:flex;gap:18px">
       <a href="download.html" data-i18n="nav.download">下载</a>
-      <a href="index.html#platforms" data-i18n="nav.platforms">平台</a>
+      <a href="https://github.com/DingdingOvO/orbital-frontier" target="_blank" rel="noopener">GitHub</a>
     </div>
   </div>
 </footer>
 
 <script src="assets/i18n.js"></script>
-<script>
-  OF.initI18n('index');
-  const io = new IntersectionObserver((es) => {
-    es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-</script>
+<script>OF.initI18n('index');</script>
 </body>
 </html>

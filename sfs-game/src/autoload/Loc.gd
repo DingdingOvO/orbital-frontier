@@ -157,6 +157,8 @@ func _build() -> void:
 		"about.desc":       {"zh_CN": "一款 2D 轨道航天沙盒：自由组装多级火箭，在真实引力场中发射、入轨、变轨与着陆。", "zh_TW": "一款 2D 軌道航太沙盒：自由組裝多級火箭，在真實引力場中發射、入軌、變軌與著陸。", "en": "A 2D orbital sandbox: assemble multi-stage rockets, then launch, orbit, transfer and land inside a real gravity field."},
 		"about.platforms":  {"zh_CN": "支持平台", "zh_TW": "支援平台", "en": "Platforms"},
 		"about.credits":    {"zh_CN": "自制引擎 · Godot 4.7 · 原创素材", "zh_TW": "自製引擎 · Godot 4.7 · 原創素材", "en": "Custom build · Godot 4.7 · Original assets"},
+		"about.soon":       {"zh_CN": "开发中", "zh_TW": "開發中", "en": "in progress"},
+		"about.planned":    {"zh_CN": "计划中", "zh_TW": "計劃中", "en": "planned"},
 
 		# ── 建造 ─────────────────────────────────
 		"build.title":      {"zh_CN": "火箭工坊", "zh_TW": "火箭工坊", "en": "ROCKET WORKSHOP"},

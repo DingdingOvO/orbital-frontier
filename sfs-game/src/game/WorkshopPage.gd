@@ -49,74 +49,54 @@ func on_enter(_p: Dictionary) -> void:
 
 # ══ 构建 ══════════════════════════════════════════════════
 func _build() -> void:
-	var root := MarginContainer.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("margin_left", 34)
-	root.add_theme_constant_override("margin_right", 34)
-	root.add_theme_constant_override("margin_top", 24)
-	root.add_theme_constant_override("margin_bottom", 22)
-	add_child(root)
+	var sc := UiKit.page_scaffold(nav, "build.title", _texts)
+	add_child(sc.root)
+	var col: VBoxContainer = sc.body
+	col.add_theme_constant_override("separation", UiKit.SP_M)
 
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 12)
-	root.add_child(col)
-
-	col.add_child(_build_toolbar())
+	# 工具栏右侧操作并入统一标题栏，避免两套头部
+	_build_toolbar(sc.head)
 
 	# 主体：左零件库 + 右（组装区 + 参数条）
 	var body := HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 14)
+	body.add_theme_constant_override("separation", UiKit.SP_M)
 	col.add_child(body)
 	body.add_child(_build_palette())
 	body.add_child(_build_assembly())
 
-	_hint = UiKit.label("", 13, UiKit.TEXT_MUTE)
+	_hint = UiKit.label("", UiKit.FS_TINY, UiKit.TEXT_MUTE)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_texts.append({"node": _hint, "key": "build.tap"})
 	col.add_child(_hint)
 
-func _build_toolbar() -> Control:
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 12)
-
-	var back := UiKit.ghost_button("←  " + Loc.t("common.back"))
-	back.pressed.connect(func(): nav.go_back())
-	head.add_child(back)
-
-	var t := UiKit.title("", 26)
-	_texts.append({"node": t, "key": "build.title"})
-	head.add_child(t)
-
-	var sp := Control.new()
-	sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(sp)
-
-	var pl := UiKit.label("", 15, UiKit.TEXT_DIM)
+func _build_toolbar(head: HBoxContainer) -> void:
+	var pl := UiKit.label("", UiKit.FS_SMALL, UiKit.TEXT_DIM)
 	_texts.append({"node": pl, "key": "build.preset"})
 	head.add_child(pl)
 	_preset_keys = Parts.PRESETS.keys()
 	_preset_opt = UiKit.option([], -1)
-	_preset_opt.custom_minimum_size = Vector2(240, 44)
+	_preset_opt.custom_minimum_size = Vector2(250, 42)
 	_preset_opt.item_selected.connect(_on_preset)
 	head.add_child(_preset_opt)
 
-	var undo := UiKit.ghost_button("")
+	var undo := UiKit.ghost_button("", 15)
+	undo.custom_minimum_size = Vector2(88, 42)
 	_texts.append({"node": undo, "key": "build.undo"})
 	undo.pressed.connect(_undo)
 	head.add_child(undo)
 
-	var clr := UiKit.ghost_button("")
+	var clr := UiKit.ghost_button("", 15)
+	clr.custom_minimum_size = Vector2(88, 42)
 	_texts.append({"node": clr, "key": "build.clear"})
 	clr.pressed.connect(_clear)
 	head.add_child(clr)
 
-	var launch := UiKit.button("", true, 20)
-	launch.custom_minimum_size = Vector2(160, 50)
+	var launch := UiKit.button("", true, 18)
+	launch.custom_minimum_size = Vector2(150, 42)
 	_texts.append({"node": launch, "key": "build.launch"})
 	launch.pressed.connect(_launch)
 	head.add_child(launch)
-	return head
 
 func _build_palette() -> Control:
 	var p := UiKit.panel(UiKit.PANEL, 18, true, 14)

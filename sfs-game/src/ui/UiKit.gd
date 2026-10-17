@@ -7,6 +7,7 @@ const INK        := Color("05080f")
 const BG         := Color("0a1020")
 const BG2        := Color("0f1830")
 const PANEL      := Color("18243d")   # 面板明显亮于背景
+const PANEL_A    := Color(0.094, 0.141, 0.239, 0.93)  # 面板（带一丝透明度，能透出星空）
 const PANEL_HI   := Color("22345a")
 const PANEL_LO   := Color("0d1526")
 const STROKE     := Color("3b5488")   # 描边清晰可见
@@ -24,6 +25,7 @@ const DANGER     := Color("ff7583")
 const OK         := Color("68eaa6")
 
 const FONT_DIR := "res://assets/fonts/"
+const UiIconScript := preload("res://src/ui/widgets/UiIcon.gd")
 
 var theme: Theme
 # 中文字体（思源黑体 多字重，静态实例 —— 之前用的是可变字体的 wght=100 超细默认实例，所以又细又糊）
@@ -256,8 +258,9 @@ func button(text: String, primary: bool = false, size: int = 20) -> Button:
 	return b
 
 ## 次级按钮：统一深灰底 + 纯白字（与 menu_button level 2 同一套配色）
-func ghost_button(text: String, size: int = 17) -> Button:
-	var b := Button.new()
+## 返回 UiIconButton，可设置 icon_kind 加矢量图标
+func ghost_button(text: String, size: int = 17) -> UiIconButton:
+	var b: UiIconButton = IconButtonScript.new()
 	b.text = text
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_font_override("font", font_ui)
@@ -266,10 +269,10 @@ func ghost_button(text: String, size: int = 17) -> Button:
 	b.add_theme_color_override("font_hover_color", Color.WHITE)
 	b.add_theme_color_override("font_pressed_color", Color.WHITE)
 	b.add_theme_color_override("font_disabled_color", Color("9aa8c0"))
-	b.add_theme_stylebox_override("normal", _sb(Color("232b3a"), Color("3d4a63"), 12, 1, 20, 11))
-	b.add_theme_stylebox_override("hover", _sb(Color("2f3a4e"), Color("5b719c"), 12, 1, 20, 11))
-	b.add_theme_stylebox_override("pressed", _sb(Color("1a2130"), Color("7db0ff"), 12, 1, 20, 11))
-	b.add_theme_stylebox_override("disabled", _sb(Color("151b28"), Color("29334a"), 12, 1, 20, 11))
+	b.add_theme_stylebox_override("normal", _sb(Color("232b3a"), Color("3d4a63"), RAD_BTN, 1, 20, 11))
+	b.add_theme_stylebox_override("hover", _sb(Color("2f3a4e"), Color("5b719c"), RAD_BTN, 1, 20, 11))
+	b.add_theme_stylebox_override("pressed", _sb(Color("1a2130"), Color("7db0ff"), RAD_BTN, 1, 20, 11))
+	b.add_theme_stylebox_override("disabled", _sb(Color("151b28"), Color("29334a"), RAD_BTN, 1, 20, 11))
 	return b
 
 ## 菜单项：大按钮 + 左侧强调条 + 悬浮右移
@@ -392,33 +395,135 @@ func menu_button(text: String, icon: String, level: int = 2,
 	_animate_lift(b)
 	return b
 
+# ── 尺寸规范（全站统一，务必不要各处另起一套）──────────────
+const SP_XS := 4
+const SP_S  := 8
+const SP_M  := 12
+const SP_L  := 18
+const SP_XL := 28
+
+const RAD_PANEL := 14      # 面板圆角
+const RAD_BTN   := 12      # 按钮圆角
+const RAD_CHIP  := 10      # 小控件圆角
+
+# 字号阶梯
+const FS_TINY := 12
+const FS_SMALL := 14
+const FS_BODY := 16
+const FS_SUB := 19
+const FS_TITLE := 24
+const FS_HERO := 30
+
 # ── 容器 ──────────────────────────────────────────────────
-func panel(bg: Color = PANEL, radius: int = 18, border: bool = true,
-		pad: int = 18) -> PanelContainer:
+## 标准面板：轻微透明（能透出一点星空），但底色够实 —— 保证内容清晰
+func panel(bg: Color = Color(0, 0, 0, 0), radius: int = RAD_PANEL,
+		border: bool = true, pad: int = SP_L) -> PanelContainer:
 	var p := PanelContainer.new()
-	var sb := _sb(bg, STROKE if border else Color(0, 0, 0, 0), radius, 1 if border else 0)
+	var col: Color = bg if bg.a > 0.0 else PANEL_A
+	var sb := _sb(col, STROKE if border else Color(0, 0, 0, 0), radius, 1 if border else 0)
 	sb.content_margin_left = pad
 	sb.content_margin_right = pad
 	sb.content_margin_top = int(pad * 0.9)
 	sb.content_margin_bottom = int(pad * 0.9)
-	sb.shadow_color = Color(0, 0, 0, 0.5)
-	sb.shadow_size = 14
-	sb.shadow_offset = Vector2(0, 5)
+	# 极轻的投影，只为把面板从背景里"抬"起来一点，不再用重度阴影
+	sb.shadow_color = Color(0, 0, 0, 0.30)
+	sb.shadow_size = 5
+	sb.shadow_offset = Vector2(0, 2)
 	p.add_theme_stylebox_override("panel", sb)
 	return p
 
-## 玻璃面板（半透明，用于 HUD 覆盖层）
-func glass(alpha: float = 0.62, radius: int = 16, pad: int = 16) -> PanelContainer:
+## HUD 玻璃面板：默认就很实（alpha 0.90），透一点点星空而已
+func glass(alpha: float = 0.90, radius: int = RAD_PANEL, pad: int = SP_M) -> PanelContainer:
 	var p := PanelContainer.new()
-	var sb := _sb(Color(0.05, 0.08, 0.15, alpha), Color(0.45, 0.62, 1.0, 0.20), radius, 1)
+	var sb := _sb(Color(0.043, 0.070, 0.129, alpha), Color(0.36, 0.50, 0.78, 0.26), radius, 1)
 	sb.content_margin_left = pad
 	sb.content_margin_right = pad
 	sb.content_margin_top = int(pad * 0.85)
 	sb.content_margin_bottom = int(pad * 0.85)
-	sb.shadow_color = Color(0, 0, 0, 0.45)
-	sb.shadow_size = 10
+	sb.shadow_color = Color(0, 0, 0, 0.28)
+	sb.shadow_size = 4
 	p.add_theme_stylebox_override("panel", sb)
 	return p
+
+## 统一的页面头：返回按钮 + 标题 + 右侧扩展位
+## 所有子页面都用它，保证标题位置、字号、间距完全一致
+func page_header(nav: Control, title_key: String, texts: Array = []) -> HBoxContainer:
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", SP_M)
+
+	var back := ghost_button("", 15)
+	back.icon_kind = "back"
+	back.custom_minimum_size = Vector2(112, 42)
+	back.pressed.connect(func():
+		if nav != null:
+			nav.go_back())
+	texts.append({"node": back, "key": "common.back"})
+	head.add_child(back)
+
+	var t := title("", FS_TITLE)
+	texts.append({"node": t, "key": title_key})
+	head.add_child(t)
+
+	var sp := Control.new()
+	sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(sp)
+	return head
+
+## 统一的页面骨架：页边距 + 标题栏 + 分隔线 + 内容区
+## 所有子页面（设置/存档/Mod/关于/工坊）都走这里，保证版式完全一致
+## 返回 { "root": Control, "head": HBoxContainer, "body": VBoxContainer }
+func page_scaffold(nav: Control, title_key: String, texts: Array) -> Dictionary:
+	var root := VBoxContainer.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.offset_left = 56
+	root.offset_right = -56
+	root.offset_top = 28
+	root.offset_bottom = -24
+	root.add_theme_constant_override("separation", 0)
+
+	var head := page_header(nav, title_key, texts)
+	root.add_child(head)
+	root.add_child(hsep(SP_L))
+
+	var rule := ColorRect.new()
+	rule.color = Color(STROKE.r, STROKE.g, STROKE.b, 0.45)
+	rule.custom_minimum_size = Vector2(0, 1)
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(rule)
+	root.add_child(hsep(SP_XL))
+
+	var body := VBoxContainer.new()
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", SP_M)
+	root.add_child(body)
+
+	return {"root": root, "head": head, "body": body}
+
+## 统一的空状态（列表为空时用）
+func empty_state(hint_key: String, texts: Array) -> Control:
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_theme_constant_override("separation", SP_S)
+	var ic := UiIconScript.new()
+	ic.kind = "list"
+	ic.tint = Color(1, 1, 1, 0.16)
+	ic.custom_minimum_size = Vector2(52, 52)
+	var ic_wrap := CenterContainer.new()
+	ic_wrap.add_child(ic)
+	box.add_child(ic_wrap)
+	var l := label("", FS_BODY, TEXT_MUTE)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	texts.append({"node": l, "key": hint_key})
+	box.add_child(l)
+	return box
+
+## 统一的分区小标题
+func section_label(text_key: String, texts: Array) -> Label:
+	var l := label("", FS_SMALL, CYAN)
+	l.add_theme_font_override("font", ui_font(2, true))
+	texts.append({"node": l, "key": text_key})
+	return l
 
 func hsep(h: int = 12) -> Control:
 	var c := Control.new()

@@ -135,7 +135,7 @@ func on_exit() -> void:
 # ── HUD 构建 ──────────────────────────────────────────────
 func _build_hud() -> void:
 	# 左上：飞行数据卡
-	var flight := UiKit.glass(0.70, 18, 16)
+	var flight := UiKit.glass(0.93, 14, 14)
 	flight.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	flight.position = Vector2(18, 16)
 	flight.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -149,7 +149,7 @@ func _build_hud() -> void:
 	_lbl_vspd = _hud_row(fv, "hud.vspeed")
 
 	# 右上：任务数据卡
-	var mission := UiKit.glass(0.70, 18, 16)
+	var mission := UiKit.glass(0.93, 14, 14)
 	mission.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	mission.offset_left = -286
 	mission.offset_top = 16
@@ -167,7 +167,7 @@ func _build_hud() -> void:
 	_lbl_fuel = _hud_row(mv, "hud.fuel", UiKit.WARN)
 
 	# 顶部中央：实时引导条
-	var guide := UiKit.glass(0.78, 14, 14)
+	var guide := UiKit.glass(0.95, 12, 12)
 	guide.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	guide.offset_left = -240
 	guide.offset_right = 240
@@ -190,7 +190,7 @@ func _build_hud() -> void:
 	add_child(bar)
 
 	# 节流
-	var thr_box := UiKit.panel(Color(0.06, 0.09, 0.16, 0.80), 14, true)
+	var thr_box := UiKit.panel(Color(0.043, 0.070, 0.129, 0.94), 14, true)
 	thr_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bar.add_child(thr_box)
 	var tv := VBoxContainer.new()
@@ -225,7 +225,7 @@ func _build_hud() -> void:
 	thr_row.add_child(_thr_btn)
 
 	# 转向
-	var steer_box := UiKit.panel(Color(0.06, 0.09, 0.16, 0.80), 14, true)
+	var steer_box := UiKit.panel(Color(0.043, 0.070, 0.129, 0.94), 14, true)
 	bar.add_child(steer_box)
 	var sh := VBoxContainer.new()
 	sh.add_theme_constant_override("separation", 3)
@@ -242,7 +242,7 @@ func _build_hud() -> void:
 	_btn_right = _hold_btn(shb, "↻", func(on: bool): steer = 1.0 if on else 0.0)
 
 	# 动作
-	var act_box := UiKit.panel(Color(0.06, 0.09, 0.16, 0.80), 14, true)
+	var act_box := UiKit.panel(Color(0.043, 0.070, 0.129, 0.94), 14, true)
 	bar.add_child(act_box)
 	var ah := HBoxContainer.new()
 	ah.add_theme_constant_override("separation", 8)

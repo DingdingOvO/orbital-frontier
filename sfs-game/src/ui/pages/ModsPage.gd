@@ -6,7 +6,6 @@ var _texts: Array = []
 var _list_box: VBoxContainer
 var _status: Label
 var _dialog: FileDialog
-var _title: Label
 var _hint: Label
 var _btn_import: Button
 var _btn_folder: Button
@@ -26,34 +25,26 @@ func _on_mods_changed() -> void:
 	_rebuild.call_deferred()
 
 func _build() -> void:
-	var root := MarginContainer.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("margin_left", 80)
-	root.add_theme_constant_override("margin_right", 80)
-	root.add_theme_constant_override("margin_top", 44)
-	root.add_theme_constant_override("margin_bottom", 40)
-	add_child(root)
+	var sc := UiKit.page_scaffold(nav, "mod.title", _texts)
+	add_child(sc.root)
+	var col: VBoxContainer = sc.body
 
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 12)
-	root.add_child(col)
-
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 18)
-	col.add_child(head)
-	_back_btn(head)
-	_title = UiKit.title("", 30)
-	head.add_child(_title)
-	head.add_child(_spacer())
-	_btn_import = UiKit.ghost_button("")
+	_btn_import = UiKit.ghost_button("", 15)
+	_btn_import.icon_kind = "plus"
+	_btn_import.custom_minimum_size = Vector2(184, 42)
 	_btn_import.pressed.connect(func(): _dialog.popup_centered_ratio(0.7))
-	head.add_child(_btn_import)
-	_btn_folder = UiKit.ghost_button("")
-	_btn_folder.pressed.connect(_open_folder)
-	head.add_child(_btn_folder)
+	sc.head.add_child(_btn_import)
+	_texts.append({"node": _btn_import, "key": "mod.import"})
 
-	col.add_child(UiKit.divider())
-	_hint = UiKit.label("", 14, UiKit.TEXT_MUTE)
+	_btn_folder = UiKit.ghost_button("", 15)
+	_btn_folder.icon_kind = "folder"
+	_btn_folder.custom_minimum_size = Vector2(184, 42)
+	_btn_folder.pressed.connect(_open_folder)
+	sc.head.add_child(_btn_folder)
+	_texts.append({"node": _btn_folder, "key": "mod.openfolder"})
+
+	_hint = UiKit.label("", UiKit.FS_SMALL, UiKit.TEXT_MUTE)
+	_texts.append({"node": _hint, "key": "mod.hint"})
 	col.add_child(_hint)
 
 	var scroll := UiKit.themed_scroll(ScrollContainer.new())
@@ -63,10 +54,10 @@ func _build() -> void:
 
 	_list_box = VBoxContainer.new()
 	_list_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_list_box.add_theme_constant_override("separation", 10)
+	_list_box.add_theme_constant_override("separation", UiKit.SP_M)
 	scroll.add_child(_list_box)
 
-	_status = UiKit.label("", 14, UiKit.OK)
+	_status = UiKit.label("", UiKit.FS_SMALL, UiKit.OK)
 	col.add_child(_status)
 
 	_dialog = FileDialog.new()
@@ -77,16 +68,6 @@ func _build() -> void:
 	_dialog.file_selected.connect(_on_zip_selected)
 	add_child(_dialog)
 
-func _spacer() -> Control:
-	var c := Control.new()
-	c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	return c
-
-func _back_btn(parent: Control) -> void:
-	var b := UiKit.ghost_button("←  " + Loc.t("common.back"))
-	b.pressed.connect(func(): nav.go_back())
-	parent.add_child(b)
-
 # ── 列表 ─────────────────────────────────────────────────
 func _rebuild() -> void:
 	if _list_box == null:
@@ -94,9 +75,7 @@ func _rebuild() -> void:
 	for c in _list_box.get_children():
 		c.queue_free()
 	if ModHost.mods.is_empty():
-		var empty := UiKit.label("", 17, UiKit.TEXT_MUTE)
-		empty.text = Loc.t("mod.none")
-		_list_box.add_child(empty)
+		_list_box.add_child(UiKit.empty_state("mod.none", _texts))
 		return
 	for i in ModHost.mods.size():
 		_list_box.add_child(_mod_row(ModHost.mods[i], i))
@@ -167,8 +146,7 @@ func _open_folder() -> void:
 
 # ── 刷新 ─────────────────────────────────────────────────
 func _refresh() -> void:
-	_title.text = Loc.t("mod.title")
-	_hint.text = Loc.t("mod.hint")
-	_btn_import.text = Loc.t("mod.import")
-	_btn_folder.text = Loc.t("mod.openfolder")
+	for e in _texts:
+		if is_instance_valid(e.node):
+			e.node.text = Loc.t(e.key, e.get("args", {}))
 	_rebuild()

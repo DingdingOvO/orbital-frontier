@@ -32,72 +32,38 @@ func _ready() -> void:
 
 # ── 构建 ─────────────────────────────────────────────────
 func _section(parent: Control, key: String) -> void:
-	parent.add_child(UiKit.hsep(14))
-	var l := UiKit.label("", 16, UiKit.CYAN)
-	l.add_theme_font_override("font", UiKit.spaced_font(2, 0.02))
-	_texts.append({"node": l, "key": key})
-	parent.add_child(l)
-	parent.add_child(UiKit.hsep(4))
+	parent.add_child(UiKit.hsep(UiKit.SP_M))
+	parent.add_child(UiKit.section_label(key, _texts))
 
+## 设置行：统一用 UiKit.panel 的卡片样式（圆角/描边/投影全站一致）
 func _row(key: String, control: Control) -> PanelContainer:
-	var box := PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = UiKit.PANEL
-	sb.border_color = UiKit.STROKE
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(13)
-	sb.content_margin_left = 20
-	sb.content_margin_right = 20
-	sb.content_margin_top = 12
-	sb.content_margin_bottom = 12
-	box.add_theme_stylebox_override("panel", sb)
+	var box := UiKit.panel(Color(0, 0, 0, 0), UiKit.RAD_PANEL, true, 14)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 22)
-	row.custom_minimum_size = Vector2(0, 44)
+	row.add_theme_constant_override("separation", UiKit.SP_L)
+	row.custom_minimum_size = Vector2(0, 46)
 	box.add_child(row)
-	var lbl := UiKit.label("", 20, UiKit.TEXT)
+	var lbl := UiKit.label("", UiKit.FS_BODY + 1, UiKit.TEXT)
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_rows.append({"label": lbl, "key": key})
 	row.add_child(lbl)
 	control.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(control)
-	box.set_meta("_row_box", true)
 	return box
 
 func _build() -> void:
-	var root := MarginContainer.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("margin_left", 76)
-	root.add_theme_constant_override("margin_right", 76)
-	root.add_theme_constant_override("margin_top", 40)
-	root.add_theme_constant_override("margin_bottom", 36)
-	add_child(root)
-
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 12)
-	root.add_child(col)
-
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 18)
-	col.add_child(head)
-	var back := UiKit.ghost_button("←  " + Loc.t("common.back"))
-	back.pressed.connect(func(): nav.go_back())
-	head.add_child(back)
-	var t := UiKit.title("", 30)
-	_texts.append({"node": t, "key": "set.title"})
-	head.add_child(t)
-
-	col.add_child(UiKit.divider())
+	var sc := UiKit.page_scaffold(nav, "set.title", _texts)
+	add_child(sc.root)
+	var wrap: VBoxContainer = sc.body
 
 	var scroll := UiKit.themed_scroll(ScrollContainer.new())
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	col.add_child(scroll)
+	wrap.add_child(scroll)
 
 	var body := VBoxContainer.new()
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 9)
+	body.add_theme_constant_override("separation", UiKit.SP_S)
 	scroll.add_child(body)
 
 	# 语言

@@ -4,7 +4,6 @@ extends Control
 var nav: Control
 var _texts: Array = []
 var _list: VBoxContainer
-var _title: Label
 var _btn_new: Button
 
 func set_nav(n: Control) -> void:
@@ -23,33 +22,15 @@ func on_enter(_p: Dictionary) -> void:
 	_rebuild()
 
 func _build() -> void:
-	var root := MarginContainer.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("margin_left", 70)
-	root.add_theme_constant_override("margin_right", 70)
-	root.add_theme_constant_override("margin_top", 40)
-	root.add_theme_constant_override("margin_bottom", 36)
-	add_child(root)
+	var sc := UiKit.page_scaffold(nav, "save.title", _texts)
+	add_child(sc.root)
+	var col: VBoxContainer = sc.body
 
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 14)
-	root.add_child(col)
-
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 18)
-	col.add_child(head)
-	var back := UiKit.ghost_button("←  " + Loc.t("common.back"))
-	back.pressed.connect(func(): nav.go_back())
-	head.add_child(back)
-	_title = UiKit.title("", 28)
-	head.add_child(_title)
-	var sp := Control.new()
-	sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(sp)
 	_btn_new = UiKit.button("", true, 18)
-	_btn_new.custom_minimum_size = Vector2(180, 48)
+	_btn_new.custom_minimum_size = Vector2(180, 46)
 	_btn_new.pressed.connect(_on_new)
-	head.add_child(_btn_new)
+	sc.head.add_child(_btn_new)
+	_texts.append({"node": _btn_new, "key": "save.new"})
 
 	var scroll := UiKit.themed_scroll(ScrollContainer.new())
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -58,7 +39,7 @@ func _build() -> void:
 
 	_list = VBoxContainer.new()
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_list.add_theme_constant_override("separation", 12)
+	_list.add_theme_constant_override("separation", UiKit.SP_M)
 	scroll.add_child(_list)
 
 func _on_new() -> void:
@@ -74,7 +55,7 @@ func _rebuild() -> void:
 
 	var slots := SaveGame.list_slots()
 	if slots.is_empty():
-		_list.add_child(UiKit.label(Loc.t("save.empty"), 17, UiKit.TEXT_MUTE))
+		_list.add_child(UiKit.empty_state("save.empty", _texts))
 		return
 	for s in slots:
 		_list.add_child(_slot_row(s))
@@ -140,6 +121,7 @@ func _fmt(m: float) -> String:
 	return "%.0f m" % m
 
 func _refresh() -> void:
-	_title.text = Loc.t("save.title")
-	_btn_new.text = Loc.t("save.new")
+	for e in _texts:
+		if is_instance_valid(e.node):
+			e.node.text = Loc.t(e.key, e.get("args", {}))
 	_rebuild()
