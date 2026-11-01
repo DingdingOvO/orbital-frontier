@@ -13,9 +13,9 @@ var value := 0.0
 var _dragging := false
 var _focus := false
 
-const KNOB := 24.0
+const KNOB := 30.0        # 触摸友好：30px 把手，命中区再外扩
 const TRACK := 8.0
-const HEIGHT := 36.0
+const HEIGHT := 44.0
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(250, HEIGHT)
@@ -38,11 +38,16 @@ func _ratio() -> float:
 		return 0.0
 	return clampf((value - min_value) / (max_value - min_value), 0.0, 1.0)
 
+## 整条轨道都可点按，且上下各留 6px 余量，手指不用精确对准
+func _has_point(point: Vector2) -> bool:
+	return Rect2(Vector2(-6, -6), size + Vector2(12, 12)).has_point(point)
+
 func _gui_input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
 		if e.pressed:
 			_dragging = true
 			_set_from_x(e.position.x)
+			UiKit.haptic(4, 0.4)
 		else:
 			_dragging = false
 			queue_redraw()

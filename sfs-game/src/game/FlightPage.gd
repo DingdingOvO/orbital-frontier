@@ -179,45 +179,48 @@ func _build_hud() -> void:
 	_lbl_guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	guide.add_child(_lbl_guide)
 
-	# 底部控制条
+	# 底部控制条（三块：节流 / 转向 / 动作）
 	var bar := HBoxContainer.new()
 	bar.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	bar.offset_left = 18
-	bar.offset_right = -18
-	bar.offset_top = -108
-	bar.offset_bottom = -16
-	bar.add_theme_constant_override("separation", 12)
+	bar.offset_left = 16
+	bar.offset_right = -16
+	bar.offset_top = -110
+	bar.offset_bottom = -14
+	bar.add_theme_constant_override("separation", 10)
 	add_child(bar)
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# 节流
-	var thr_box := UiKit.panel(Color(0.043, 0.070, 0.129, 0.94), 14, true)
+	var thr_box := UiKit.panel(Color(0.043, 0.070, 0.129, 0.95), 16, true, 12)
 	thr_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	thr_box.custom_minimum_size = Vector2(340, 0)
 	bar.add_child(thr_box)
 	var tv := VBoxContainer.new()
 	tv.add_theme_constant_override("separation", 4)
 	thr_box.add_child(tv)
 	var thr_head := HBoxContainer.new()
-	var thl := UiKit.label("", 14, UiKit.TEXT_DIM)
+	var thl := UiKit.label("", 13, UiKit.TEXT_DIM)
 	_texts.append({"node": thl, "key": "hud.throttle"})
 	thr_head.add_child(thl)
-	_thr_lbl = UiKit.label("0%", 18, UiKit.CYAN)
+	_thr_lbl = UiKit.label("0%", 17, UiKit.CYAN)
 	_thr_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_thr_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_thr_lbl.add_theme_font_override("font", UiKit.number_font(0))
 	thr_head.add_child(_thr_lbl)
 	tv.add_child(thr_head)
 	var thr_row := HBoxContainer.new()
 	thr_row.add_theme_constant_override("separation", 10)
 	tv.add_child(thr_row)
 	_thr = UiKit.slider(0.0, 0.0, 1.0, 0.05)
-	_thr.custom_minimum_size = Vector2(200, 36)
+	_thr.custom_minimum_size = Vector2(150, 44)
 	_thr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_thr.value_changed.connect(func(v: float):
 		throttle = v
 		_thr_lbl.text = "%d%%" % roundi(v * 100.0))
 	_thr.set_value(0.0)
 	thr_row.add_child(_thr)
-	_thr_btn = UiKit.button("100%", true, 16)
-	_thr_btn.custom_minimum_size = Vector2(88, 40)
+	_thr_btn = UiKit.button("100%", true, 15)
+	_thr_btn.custom_minimum_size = Vector2(76, 44)
 	_thr_btn.pressed.connect(func():
 		_thr.set_value(1.0)
 		throttle = 1.0
@@ -225,59 +228,43 @@ func _build_hud() -> void:
 	thr_row.add_child(_thr_btn)
 
 	# 转向
-	var steer_box := UiKit.panel(Color(0.043, 0.070, 0.129, 0.94), 14, true)
+	var steer_box := UiKit.panel(Color(0.043, 0.070, 0.129, 0.95), 16, true, 10)
+	steer_box.custom_minimum_size = Vector2(172, 0)
 	bar.add_child(steer_box)
 	var sh := VBoxContainer.new()
-	sh.add_theme_constant_override("separation", 3)
+	sh.add_theme_constant_override("separation", 2)
 	steer_box.add_child(sh)
-	var shl := UiKit.label("", 14, UiKit.TEXT_DIM)
+	var shl := UiKit.label("", 13, UiKit.TEXT_DIM)
 	_texts.append({"node": shl, "key": "hud.steer"})
 	shl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sh.add_child(shl)
 	var shb := HBoxContainer.new()
-	shb.add_theme_constant_override("separation", 10)
+	shb.alignment = BoxContainer.ALIGNMENT_CENTER
+	shb.add_theme_constant_override("separation", 8)
 	sh.add_child(shb)
-	# ↺ ↻ (U+21BA / U+21BB) —— 在裁剪字体范围内，不会渲染成方块
 	_btn_left = _hold_btn(shb, "↺", func(on: bool): steer = -1.0 if on else 0.0)
 	_btn_right = _hold_btn(shb, "↻", func(on: bool): steer = 1.0 if on else 0.0)
 
-	# 动作
-	var act_box := UiKit.panel(Color(0.043, 0.070, 0.129, 0.94), 14, true)
+	# 动作（图标 + 文字，统一 88×66）
+	var act_box := UiKit.panel(Color(0.043, 0.070, 0.129, 0.95), 16, true, 10)
+	act_box.custom_minimum_size = Vector2(492, 0)
 	bar.add_child(act_box)
 	var ah := HBoxContainer.new()
-	ah.add_theme_constant_override("separation", 8)
+	ah.add_theme_constant_override("separation", 6)
 	act_box.add_child(ah)
-	_btn_stage = UiKit.button("", false, 17)
-	_btn_stage.custom_minimum_size = Vector2(112, 58)
-	_btn_stage.pressed.connect(_do_stage)
-	_texts.append({"node": _btn_stage, "key": "hud.stage_btn"})
-	ah.add_child(_btn_stage)
-	_btn_chute = UiKit.button("", false, 17)
-	_btn_chute.custom_minimum_size = Vector2(96, 58)
-	_btn_chute.pressed.connect(_do_chute)
-	_texts.append({"node": _btn_chute, "key": "part.chute"})
-	ah.add_child(_btn_chute)
-	_btn_map = UiKit.button("", false, 17)
-	_btn_map.custom_minimum_size = Vector2(96, 58)
-	_btn_map.pressed.connect(_toggle_map)
-	_texts.append({"node": _btn_map, "key": "hud.map"})
-	ah.add_child(_btn_map)
-	_btn_warp = UiKit.button("", false, 17)
-	_btn_warp.custom_minimum_size = Vector2(112, 58)
-	_btn_warp.pressed.connect(_cycle_warp)
-	ah.add_child(_btn_warp)
-	_btn_pause = UiKit.button("", false, 17)
-	_btn_pause.custom_minimum_size = Vector2(88, 58)
-	_btn_pause.pressed.connect(_toggle_pause)
-	ah.add_child(_btn_pause)
+	_btn_stage = _action_btn(ah, "stage", "hud.stage_btn", _do_stage)
+	_btn_chute = _action_btn(ah, "chute", "part.chute", _do_chute)
+	_btn_map = _action_btn(ah, "map", "hud.map", _toggle_map)
+	_btn_warp = _action_btn(ah, "warp", "hud.warp", _cycle_warp)
+	_btn_pause = _action_btn(ah, "pause", "hud.pause", _toggle_pause)
 
 	# 左上角下方：返回工坊
 	var back := UiKit.ghost_button("←  " + Loc.t("hud.revert"), 15)
 	back.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	back.offset_left = 18
 	back.offset_top = 152
-	back.offset_right = 190
-	back.offset_bottom = 196
+	back.offset_right = 196
+	back.offset_bottom = 200
 	back.pressed.connect(func(): nav.show_page("workshop"))
 	add_child(back)
 	_texts.append({"node": back, "key": "hud.revert", "prefix": "←  "})
@@ -313,9 +300,20 @@ func _hud_row(parent: Control, key: String, value_col: Color = UiKit.TEXT) -> La
 	return v
 
 func _hold_btn(parent: Control, txt: String, cb: Callable) -> Button:
-	var b := UiKit.round_button(txt, 58, 26, true)
+	var b := UiKit.round_button(txt, 62, 28, true)
 	b.button_down.connect(func(): cb.call(true))
 	b.button_up.connect(func(): cb.call(false))
+	parent.add_child(b)
+	return b
+
+## HUD 动作键：上方矢量图标 + 下方文字，统一尺寸，触摸友好
+func _action_btn(parent: Control, icon: String, key: String, cb: Callable) -> HudAction:
+	var b := HudAction.new()
+	b.icon_kind = icon
+	b.cap_key = key
+	b.custom_minimum_size = Vector2(88, 66)
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.pressed.connect(cb)
 	parent.add_child(b)
 	return b
 
@@ -327,19 +325,26 @@ func _refresh_texts() -> void:
 	_guide_key = ""
 
 func _refresh_buttons() -> void:
-	_btn_warp.text = "×%d" % WARP_STEPS[warp_idx]
-	_btn_pause.text = Loc.t("hud.resume") if paused else Loc.t("hud.pause")
+	for b in [_btn_stage, _btn_chute, _btn_map, _btn_warp, _btn_pause]:
+		if is_instance_valid(b) and b.has_method("set_cap"):
+			b.set_cap(Loc.t(b.cap_key))
+	if is_instance_valid(_btn_warp):
+		_btn_warp.set_cap("×%d" % WARP_STEPS[warp_idx])
+	if is_instance_valid(_btn_pause):
+		_btn_pause.set_cap(Loc.t("hud.resume") if paused else Loc.t("hud.pause"))
 
 # ── 控制 ──────────────────────────────────────────────────
 func _do_stage() -> void:
 	if rocket and rocket.separate():
 		SaveGame.record_stage()
 		_feedback()
+		UiKit.haptic(16, 0.8)
 	_refresh_hud()
 
 func _do_chute() -> void:
 	if rocket and rocket.deploy_chute():
 		_feedback()
+		UiKit.haptic(12, 0.6)
 
 func _cycle_warp() -> void:
 	if rocket and rocket.state == "flying":
@@ -439,7 +444,61 @@ func _zoom_at(screen_pos: Vector2, factor: float) -> void:
 	var after := s2w(screen_pos)
 	cam_pos += before - after
 
+# ── 触屏手势：单指平移 / 双指捏合缩放 / 双击回中 ──
+var _touches: Dictionary = {}
+var _pinch_dist := 0.0
+var _pinching := false
+var _last_tap_ms := 0
+var _last_tap_pos := Vector2.ZERO
+
+func _touch_count() -> int:
+	return _touches.size()
+
+func _update_pinch() -> void:
+	var keys := _touches.keys()
+	keys.sort()
+	if keys.size() < 2:
+		_pinch_dist = 0.0
+		_pinching = false
+		return
+	var a: Vector2 = _touches[keys[0]]
+	var b: Vector2 = _touches[keys[1]]
+	var d := a.distance_to(b)
+	var mid := (a + b) * 0.5
+	if _pinch_dist > 2.0 and d > 2.0:
+		_zoom_at(mid, d / _pinch_dist)
+	_pinch_dist = d
+	_pinching = keys.size() >= 2
+
+func _handle_touch(e: InputEvent) -> void:
+	if e is InputEventScreenTouch:
+		var t := e as InputEventScreenTouch
+		if t.pressed:
+			_touches[t.index] = t.position
+			# 双击回中（触摸端没有原生 double_click，自己判定）
+			var now := Time.get_ticks_msec()
+			if now - _last_tap_ms < 320 and t.position.distance_to(_last_tap_pos) < 48.0:
+				cam_free = false
+				_start_cam_transition(0.82)
+				_last_tap_ms = 0
+			else:
+				_last_tap_ms = now
+				_last_tap_pos = t.position
+		else:
+			_touches.erase(t.index)
+		_update_pinch()
+	elif e is InputEventScreenDrag:
+		var dr := e as InputEventScreenDrag
+		if _touches.has(dr.index):
+			_touches[dr.index] = dr.position
+		_update_pinch()
+
 func _gui_input(e: InputEvent) -> void:
+	if e is InputEventScreenTouch or e is InputEventScreenDrag:
+		_handle_touch(e)
+		return
+	if _pinching and (e is InputEventMouseMotion or e is InputEventMouseButton):
+		return
 	if e is InputEventMouseButton:
 		if e.pressed and e.button_index == MOUSE_BUTTON_WHEEL_UP:
 			_zoom_at(e.position, 1.12)
@@ -563,7 +622,8 @@ func _refresh_hud(delta: float = 0.0) -> void:
 	var el := rocket.elements()
 	var R := Space.radius(rocket.body_id)
 	_lbl_apo.text = "∞" if bool(el.get("hyper", false)) else _fmt_dist(float(el.get("apo", 0.0)) - R)
-	_lbl_peri.text = _fmt_dist(float(el.get("peri", 0.0)) - R)
+	var peri_m: float = float(el.get("peri", 0.0)) - R
+	_lbl_peri.text = _fmt_dist(peri_m) if peri_m > 0.0 else "—"
 	var f := rocket.stage_fuel()
 	var cap := rocket.stage_fuel_cap()
 	_lbl_fuel.text = "%d%%" % (roundi(100.0 * f / cap) if cap > 0.0 else 0)
@@ -839,3 +899,58 @@ func _draw_map_overlay() -> void:
 	var cur := w2s(rocket.pos)
 	draw_circle(cur, 5.0, Color.WHITE)
 	draw_arc(cur, 9.0, 0.0, TAU, 24, Color(0.42, 0.98, 0.62, 0.9), 2.0)
+
+
+# ══ HUD 动作键 ════════════════════════════════════════════
+class HudAction extends Button:
+	var icon_kind := ""
+	var cap_key := ""
+	var cap := ""
+	var _ic: Control
+
+	func _ready() -> void:
+		focus_mode = Control.FOCUS_NONE
+		clip_text = true
+		text = ""
+		_style()
+		_ic = UiIcon.new()
+		_ic.kind = icon_kind
+		_ic.tint = Color.WHITE
+		_ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_ic)
+		resized.connect(_place)
+		_place()
+		UiKit.press_fx(self, 0.94)
+
+	func set_cap(t: String) -> void:
+		cap = t
+		queue_redraw()
+
+	func _place() -> void:
+		if not is_instance_valid(_ic):
+			return
+		var d := 22.0
+		_ic.size = Vector2(d, d)
+		_ic.position = Vector2((size.x - d) * 0.5, 11.0)
+
+	func _style() -> void:
+		add_theme_stylebox_override("normal", _sb(Color("232b3a"), Color("3d4a63")))
+		add_theme_stylebox_override("hover", _sb(Color("2f3a4e"), Color("5b719c")))
+		add_theme_stylebox_override("pressed", _sb(Color("151b28"), Color("7db0ff")))
+		add_theme_stylebox_override("focus", _sb(Color("232b3a"), Color("7db0ff")))
+		add_theme_stylebox_override("disabled", _sb(Color("151b28"), Color("29334a")))
+
+	func _sb(bg: Color, edge: Color) -> StyleBoxFlat:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = bg
+		sb.border_color = edge
+		sb.set_border_width_all(1)
+		sb.set_corner_radius_all(14)
+		return sb
+
+	func _draw() -> void:
+		if cap == "":
+			return
+		var f: Font = UiKit.font_ui if UiKit.font_ui else ThemeDB.fallback_font
+		draw_string(f, Vector2(0, size.y - 12), cap, HORIZONTAL_ALIGNMENT_CENTER,
+			size.x, 12, Color.WHITE)

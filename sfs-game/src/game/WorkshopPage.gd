@@ -20,6 +20,7 @@ var _preview: Control
 var _part_btns: Array = []
 var _preset_opt: OptionButton
 var _preset_keys: Array = []
+var _cleared: Array = []
 
 var _val_mass: Label
 var _val_dv: Label
@@ -76,55 +77,66 @@ func _build_toolbar(head: HBoxContainer) -> void:
 	head.add_child(pl)
 	_preset_keys = Parts.PRESETS.keys()
 	_preset_opt = UiKit.option([], -1)
-	_preset_opt.custom_minimum_size = Vector2(250, 42)
+	_preset_opt.custom_minimum_size = Vector2(250, 46)
 	_preset_opt.item_selected.connect(_on_preset)
 	head.add_child(_preset_opt)
 
 	var undo := UiKit.ghost_button("", 15)
-	undo.custom_minimum_size = Vector2(88, 42)
+	undo.custom_minimum_size = Vector2(88, 46)
 	_texts.append({"node": undo, "key": "build.undo"})
 	undo.pressed.connect(_undo)
 	head.add_child(undo)
 
 	var clr := UiKit.ghost_button("", 15)
-	clr.custom_minimum_size = Vector2(88, 42)
+	clr.custom_minimum_size = Vector2(88, 46)
 	_texts.append({"node": clr, "key": "build.clear"})
 	clr.pressed.connect(_clear)
 	head.add_child(clr)
 
 	var launch := UiKit.button("", true, 18)
-	launch.custom_minimum_size = Vector2(150, 42)
+	launch.custom_minimum_size = Vector2(150, 46)
 	_texts.append({"node": launch, "key": "build.launch"})
 	launch.pressed.connect(_launch)
 	head.add_child(launch)
 
 func _build_palette() -> Control:
-	var p := UiKit.panel(UiKit.PANEL, 18, true, 14)
-	p.custom_minimum_size = Vector2(236, 0)
+	var p := UiKit.panel(UiKit.PANEL, 18, true, 12)
+	p.custom_minimum_size = Vector2(300, 0)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)
 	p.add_child(v)
 
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	v.add_child(head)
 	var hdr := UiKit.label("", 15, UiKit.CYAN)
 	_texts.append({"node": hdr, "key": "build.parts"})
-	v.add_child(hdr)
+	head.add_child(hdr)
+	var cnt := UiKit.label(str(Parts.PALETTE.size()), 12, UiKit.TEXT_MUTE)
+	cnt.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	cnt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(cnt)
 
+	# 两列网格：13 个零件在 720p 上不用滚动就能全部看到
 	var scroll := UiKit.themed_scroll(ScrollContainer.new())
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	v.add_child(scroll)
 
-	var list := VBoxContainer.new()
-	list.add_theme_constant_override("separation", 7)
-	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(list)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(grid)
 
 	for id in Parts.PALETTE:
 		var b := PartButton.new()
 		b.part_id = id
 		b.host = self
-		b.custom_minimum_size = Vector2(0, 54)
-		list.add_child(b)
+		b.custom_minimum_size = Vector2(0, 64)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		grid.add_child(b)
 		_part_btns.append({"node": b, "id": id})
 	return p
 
@@ -203,11 +215,20 @@ func _remove_part(idx: int) -> void:
 func _undo() -> void:
 	if not _parts.is_empty():
 		_parts.remove_at(_parts.size() - 1)
-		_after_change()
+	elif not _cleared.is_empty():
+		_parts = _cleared.duplicate()
+		_cleared.clear()
+	_after_change()
 
 func _clear() -> void:
+	if _parts.is_empty():
+		return
+	_cleared = _parts.duplicate()
 	_parts.clear()
 	_after_change()
+	_hint.text = str({"zh_CN": "已清空 · 点「撤销」可恢复",
+		"zh_TW": "已清空 · 點「復原」可恢復",
+		"en": "Cleared — tap UNDO to restore"}.get(Loc.current, "Cleared"))
 
 func _on_preset(i: int) -> void:
 	# index 0 是「— 选择预设 —」占位项，真正的预设从 1 开始
@@ -218,7 +239,9 @@ func _on_preset(i: int) -> void:
 
 func _after_change() -> void:
 	_update_stats()
-	_preview.queue_redraw()
+	if _preview:
+		_preview.set("selected", -1)
+		_preview.queue_redraw()
 
 func _update_stats() -> void:
 	if _val_mass == null:
@@ -278,16 +301,21 @@ class PartButton extends Button:
 		focus_mode = Control.FOCUS_NONE
 		alignment = HORIZONTAL_ALIGNMENT_LEFT
 		add_theme_font_override("font", UiKit.font_base)
-		add_theme_font_size_override("font_size", 16)
+		add_theme_font_size_override("font_size", 14)
 		_apply_style()
 		_icon = PartIcon.new()
 		_icon.part_id = part_id
-		_icon.position = Vector2(16, 13)
-		_icon.size = Vector2(28, 28)
+		_icon.position = Vector2(10, 17)
+		_icon.size = Vector2(30, 30)
 		add_child(_icon)
-		pressed.connect(func(): host.add_part(part_id))
+		pressed.connect(func():
+			host.add_part(part_id)
+			UiKit.haptic(5, 0.4))
 		mouse_entered.connect(func(): _apply_style(true))
 		mouse_exited.connect(func(): _apply_style(false))
+		pivot_offset = size * 0.5
+		resized.connect(func(): pivot_offset = size * 0.5)
+		UiKit.press_fx(self, 0.96)
 
 	func _apply_style(hover: bool = false) -> void:
 		var sb := StyleBoxFlat.new()
@@ -295,8 +323,8 @@ class PartButton extends Button:
 		sb.border_color = UiKit.STROKE_HI if hover else UiKit.STROKE
 		sb.set_border_width_all(1)
 		sb.set_corner_radius_all(12)
-		sb.content_margin_left = 56
-		sb.content_margin_right = 14
+		sb.content_margin_left = 46
+		sb.content_margin_right = 8
 		sb.content_margin_top = 13
 		sb.content_margin_bottom = 13
 		var st := "hover" if hover else "normal"
@@ -306,16 +334,16 @@ class PartButton extends Button:
 		modulate = Color(1.12, 1.12, 1.12, 1.0) if hover else Color.WHITE
 
 	func _draw() -> void:
-		# 名称文本（右侧）+ 拖拽提示
+		# 紧凑双列布局：图标 + 名称 + 质量
 		var f: Font = UiKit.font_base if UiKit.font_base else ThemeDB.fallback_font
 		var d: Dictionary = Parts.def(part_id)
 		var nm := Loc.t(str(d.get("name_key", part_id)))
-		draw_string(f, Vector2(56, size.y * 0.5 + 6), nm,
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 16, UiKit.TEXT)
+		var avail := size.x - 46.0
+		draw_string(f, Vector2(46, size.y * 0.5 - 1), nm,
+			HORIZONTAL_ALIGNMENT_LEFT, avail, 14, UiKit.TEXT)
 		var kg := Parts.dry_mass(part_id) + Parts.fuel_cap(part_id)
-		draw_string(f, Vector2(size.x - 14 - Measure.text_width(f, "%d kg" % int(kg), 12),
-			size.y * 0.5 + 5), "%d kg" % int(kg),
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 12, UiKit.TEXT_MUTE)
+		draw_string(f, Vector2(46, size.y * 0.5 + 17), "%d kg" % int(kg),
+			HORIZONTAL_ALIGNMENT_LEFT, avail, 11, UiKit.TEXT_MUTE)
 
 	func _get_drag_data(_pos: Vector2) -> Variant:
 		var preview := PanelContainer.new()
@@ -394,6 +422,7 @@ class PartIcon extends Control:
 class Preview extends Control:
 	var host = null
 	var hit: Array = []
+	var selected := -1
 	var _hover_drop := false
 
 	func _ready() -> void:
@@ -467,6 +496,15 @@ class Preview extends Control:
 			var rect := Rect2(cx - w * 0.5, y - h, w, h)
 			Draw.part(self, kind, rect, d)
 			hit.append({"idx": i, "rect": rect})
+			if i == selected:
+				# 选中：高亮描边 + 右上角删除按钮（触屏上比"点一下就删"安全得多）
+				Draw.rounded_rect(self, rect.grow(3.0), 6, Color(0, 0, 0, 0),
+					Color(0.36, 0.66, 1.0, 0.95), 2)
+				var bp := Vector2(rect.end.x - 1.0, rect.position.y + 1.0)
+				draw_circle(bp, 13.0, Color(1.0, 0.46, 0.51, 0.96))
+				draw_circle(bp, 13.0, Color(1, 1, 1, 0.35))
+				draw_line(bp + Vector2(-4.5, -4.5), bp + Vector2(4.5, 4.5), Color.WHITE, 2.2)
+				draw_line(bp + Vector2(4.5, -4.5), bp + Vector2(-4.5, 4.5), Color.WHITE, 2.2)
 			y -= h
 		# 高度标注
 		var fnt: Font = UiKit.font_base if UiKit.font_base else ThemeDB.fallback_font
@@ -476,10 +514,33 @@ class Preview extends Control:
 	func _gui_input(e: InputEvent) -> void:
 		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 			var mp: Vector2 = e.position
-			for h in hit:
-				if (h.rect as Rect2).grow(5.0).has_point(mp):
-					host._remove_part(int(h.idx))
+			# 先判断删除按钮（命中半径放大到 20px，手指不会点偏）
+			if selected >= 0:
+				var bp := _badge_pos(selected)
+				if bp.distance_to(mp) <= 20.0:
+					var idx := selected
+					selected = -1
+					host._remove_part(idx)
+					UiKit.haptic(10, 0.7)
 					return
+			for h in hit:
+				if (h.rect as Rect2).grow(10.0).has_point(mp):
+					if selected == int(h.idx):
+						selected = -1
+					else:
+						selected = int(h.idx)
+						UiKit.haptic(4, 0.4)
+					queue_redraw()
+					return
+			selected = -1
+			queue_redraw()
+
+	func _badge_pos(idx: int) -> Vector2:
+		for h in hit:
+			if int(h.idx) == idx:
+				var r: Rect2 = h.rect
+				return Vector2(r.end.x - 1.0, r.position.y + 1.0)
+		return Vector2(-999, -999)
 
 # ══ 绘制工具 ══════════════════════════════════════════════
 class Draw:

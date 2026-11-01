@@ -86,3 +86,31 @@ func _draw() -> void:
 			draw_arc(c, 9.0 * s, 0.0, TAU, 32, tint, 2.2 * s)
 			draw_arc(c, 9.0 * s, -PI * 0.5, PI * 0.5, 16, tint, 2.2 * s)
 			draw_line(c + Vector2(-8.5, 0.0) * s, c + Vector2(8.5, 0.0) * s, tint, 2.2 * s)
+		"chev":
+			draw_polyline(PackedVector2Array([
+				c + Vector2(-3.5, -6.5) * s,
+				c + Vector2(3.0, 0.0) * s,
+				c + Vector2(-3.5, 6.5) * s]), tint, 2.4 * s)
+		"stage":
+			draw_rect(Rect2(c + Vector2(-7.0, -9.0) * s, Vector2(14.0, 7.0) * s), tint, false, 2.0 * s)
+			draw_rect(Rect2(c + Vector2(-7.0, 2.0) * s, Vector2(14.0, 7.0) * s), tint, true)
+			draw_line(c + Vector2(-9.0, -1.0) * s, c + Vector2(9.0, -1.0) * s, tint, 2.0 * s)
+		"chute":
+			draw_arc(c + Vector2(0.0, 2.0) * s, 8.5 * s, PI, TAU, 24, tint, 2.2 * s)
+			draw_line(c + Vector2(-8.5, 2.0) * s, c + Vector2(0.0, 9.0) * s, tint, 2.0 * s)
+			draw_line(c + Vector2(8.5, 2.0) * s, c + Vector2(0.0, 9.0) * s, tint, 2.0 * s)
+			draw_circle(c + Vector2(0.0, 9.5) * s, 1.8 * s, tint)
+		"warp":
+			for i in 2:
+				var ox := -3.0 + float(i) * 6.0
+				draw_polyline(PackedVector2Array([
+					c + Vector2(ox - 3.0, -6.0) * s,
+					c + Vector2(ox + 2.0, 0.0) * s,
+					c + Vector2(ox - 3.0, 6.0) * s]), tint, 2.2 * s)
+		"pause":
+			draw_rect(Rect2(c + Vector2(-5.0, -8.0) * s, Vector2(3.4, 16.0) * s), tint, true)
+			draw_rect(Rect2(c + Vector2(1.6, -8.0) * s, Vector2(3.4, 16.0) * s), tint, true)
+		"trash2":
+			draw_arc(c, 9.0 * s, 0.0, TAU, 32, tint, 2.2 * s)
+			draw_line(c + Vector2(-4.5, -4.5) * s, c + Vector2(4.5, 4.5) * s, tint, 2.4 * s)
+			draw_line(c + Vector2(4.5, -4.5) * s, c + Vector2(-4.5, 4.5) * s, tint, 2.4 * s)

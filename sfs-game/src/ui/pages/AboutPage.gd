@@ -17,6 +17,15 @@ func _build() -> void:
 	var sc := UiKit.page_scaffold(nav, "about.title", _texts)
 	add_child(sc.root)
 	var body: VBoxContainer = sc.body
+	# 小屏（<720 高）也能滚动，不裁切内容
+	var scroll := UiKit.themed_scroll(ScrollContainer.new())
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	body.add_child(scroll)
+	body = VBoxContainer.new()
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", UiKit.SP_M)
+	scroll.add_child(body)
 
 	# ── 简介 ──
 	var c1 := UiKit.panel()
@@ -38,6 +47,25 @@ func _build() -> void:
 	_plat_row(v2, "Windows / macOS / Linux", "about.soon", 0)
 	_plat_row(v2, "iOS", "about.planned", 0)
 
+	# ── 更新内容 ──
+	var c4 := UiKit.panel()
+	body.add_child(c4)
+	var v4 := VBoxContainer.new()
+	v4.add_theme_constant_override("separation", UiKit.SP_S)
+	c4.add_child(v4)
+	v4.add_child(UiKit.section_label("about.news", _texts))
+	for k in ["about.news.1", "about.news.2", "about.news.3"]:
+		var line := HBoxContainer.new()
+		line.add_theme_constant_override("separation", UiKit.SP_S)
+		var dot := UiKit.label("•", UiKit.FS_BODY, UiKit.ACCENT_HI)
+		line.add_child(dot)
+		var t := UiKit.label("", UiKit.FS_SMALL, UiKit.TEXT_DIM)
+		t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_texts.append({"node": t, "key": k})
+		line.add_child(t)
+		v4.add_child(line)
+
 	# ── 制作信息 ──
 	var c3 := UiKit.panel(UiKit.PANEL_LO)
 	body.add_child(c3)
@@ -48,7 +76,7 @@ func _build() -> void:
 	_texts.append({"node": cr, "key": "about.credits"})
 	v3.add_child(cr)
 	var ver := UiKit.label("", UiKit.FS_TINY, UiKit.TEXT_MUTE)
-	_texts.append({"node": ver, "key": "app.version", "args": {"v": "0.1.0"}})
+	_texts.append({"node": ver, "key": "app.version", "args": {"v": "0.2.0"}})
 	v3.add_child(ver)
 
 ## 平台行：状态点 + 名称 + 说明（note 以 "about." 开头则视为本地化 key）

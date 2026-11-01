@@ -100,7 +100,7 @@ func _slot_row(s: Dictionary) -> Control:
 		nav.show_page("workshop"))
 	btns.add_child(enter)
 	var del := UiKit.ghost_button(Loc.t("save.delete"), 15)
-	del.custom_minimum_size = Vector2(120, 40)
+	del.custom_minimum_size = Vector2(120, 46)
 	del.pressed.connect(func(): SaveGame.delete_slot(sid))
 	btns.add_child(del)
 	return p

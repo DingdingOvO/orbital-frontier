@@ -31,6 +31,10 @@ func _ready() -> void:
 	else:
 		current = _detect()
 		Cfg.set_value("language", current)
+	# 调试/截图用：--lang=en 强制语言
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--lang=") and CODES.has(a.substr(7)):
+			current = a.substr(7)
 
 func _detect() -> String:
 	var os_locale := OS.get_locale()          # e.g. zh_CN, zh_TW, en_US
@@ -79,6 +83,12 @@ func _build() -> void:
 		# ── 主菜单 ───────────────────────────────
 		"menu.start":       {"zh_CN": "开始", "zh_TW": "開始", "en": "START"},
 		"menu.continue":    {"zh_CN": "继续", "zh_TW": "繼續", "en": "CONTINUE"},
+		"menu.resume.kicker": {"zh_CN": "继续任务", "zh_TW": "繼續任務", "en": "RESUME MISSION"},
+		"menu.resume.none": {"zh_CN": "暂无存档", "zh_TW": "尚無存檔", "en": "NO SAVES YET"},
+		"menu.resume.hint": {"zh_CN": "点「开始」建立新任务 · 进度自动保存", "zh_TW": "點「開始」建立新任務 · 進度自動儲存", "en": "Tap START · autosaves as you play"},
+		"menu.resume.stats": {"zh_CN": "{launch} 次发射 · {orbit} 次入轨 · {sat} 颗卫星", "zh_TW": "{launch} 次發射 · {orbit} 次入軌 · {sat} 顆衛星", "en": "{launch} launches · {orbit} orbits · {sat} satellites"},
+		"menu.hint.touch":  {"zh_CN": "单指拖动 · 双指缩放 · 双击回中", "zh_TW": "單指拖動 · 雙指縮放 · 雙擊回中", "en": "Drag to pan · Pinch to zoom · Double-tap to center"},
+		"menu.hint.mouse":  {"zh_CN": "拖动平移 · 滚轮缩放 · 双击回中", "zh_TW": "拖動平移 · 滾輪縮放 · 雙擊回中", "en": "Drag to pan · Scroll to zoom · Double-click to center"},
 		"menu.settings":    {"zh_CN": "设置", "zh_TW": "設定", "en": "SETTINGS"},
 		"menu.mods":        {"zh_CN": "Mod", "zh_TW": "Mod", "en": "MODS"},
 		"menu.about":       {"zh_CN": "关于", "zh_TW": "關於", "en": "ABOUT"},
@@ -154,6 +164,10 @@ func _build() -> void:
 
 		# ── 关于 ─────────────────────────────────
 		"about.title":      {"zh_CN": "关于", "zh_TW": "關於", "en": "ABOUT"},
+		"about.news": {"zh_CN": "本次更新 · v0.2.0", "zh_TW": "本次更新 · v0.2.0", "en": "WHAT'S NEW · v0.2.0"},
+		"about.news.1": {"zh_CN": "主菜单重做：存档摘要卡片、滑动语言切换、错峰入场动画", "zh_TW": "主選單重做：存檔摘要卡片、滑動語言切換、錯峰入場動畫", "en": "New main menu with save summary, sliding language switch and staggered entrance"},
+		"about.news.2": {"zh_CN": "触屏优化：48px 触摸目标、按压回弹与触感、双指缩放、防误删", "zh_TW": "觸屏優化：48px 觸摸目標、按壓回彈與觸感、雙指縮放、防誤刪", "en": "Touch pass: 48px targets, press feedback and haptics, pinch zoom, safer deletion"},
+		"about.news.3": {"zh_CN": "飞行 HUD 重排：图标动作键、近地点无效时不再显示负数", "zh_TW": "飛行 HUD 重排：圖示動作鍵、近地點無效時不再顯示負數", "en": "Reworked flight HUD with icon actions and clean apoapsis/periapsis readouts"},
 		"about.desc":       {"zh_CN": "一款 2D 轨道航天沙盒：自由组装多级火箭，在真实引力场中发射、入轨、变轨与着陆。", "zh_TW": "一款 2D 軌道航太沙盒：自由組裝多級火箭，在真實引力場中發射、入軌、變軌與著陸。", "en": "A 2D orbital sandbox: assemble multi-stage rockets, then launch, orbit, transfer and land inside a real gravity field."},
 		"about.platforms":  {"zh_CN": "支持平台", "zh_TW": "支援平台", "en": "Platforms"},
 		"about.credits":    {"zh_CN": "自制引擎 · Godot 4.7 · 原创素材", "zh_TW": "自製引擎 · Godot 4.7 · 原創素材", "en": "Custom build · Godot 4.7 · Original assets"},
@@ -176,7 +190,7 @@ func _build() -> void:
 		"preset.sounding":  {"zh_CN": "探空火箭（亚轨道）", "zh_TW": "探空火箭（亞軌道）", "en": "Sounding Rocket (suborbital)"},
 		"preset.orbiter":   {"zh_CN": "轨道火箭（入轨）", "zh_TW": "軌道火箭（入軌）", "en": "Orbital Rocket (to orbit)"},
 		"preset.lunar":     {"zh_CN": "奔月火箭（重型三级）", "zh_TW": "奔月火箭（重型三級）", "en": "Lunar Rocket (heavy 3-stage)"},
-		"build.tap":        {"zh_CN": "点击零件加入火箭，点机身零件可移除", "zh_TW": "點擊零件加入火箭，點機身零件可移除", "en": "Tap a part to stack it; tap a stacked part to remove"},
+		"build.tap":        {"zh_CN": "点击零件加入 · 长按可拖入 · 点已装零件后再点 × 删除", "zh_TW": "點擊零件加入 · 長按可拖入 · 點已裝零件後再點 × 刪除", "en": "Tap to add · press and drag onto the blueprint · tap a part, then × to remove"},
 
 		# 零件名
 		"part.capsule":     {"zh_CN": "指令舱", "zh_TW": "指令艙", "en": "Command Pod"},

@@ -2,12 +2,13 @@ extends Control
 ## StarfieldBg — 三层视差星空背景，缓慢漂移 + 闪烁。
 
 var _bg_tex: GradientTexture2D
+var _glow_tex: GradientTexture2D
 var _layers: Array = []      # [{speed, stars:[{x,y,r,a,ph,tw}]}]
 var _t: float = 0.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_make_bg()
 	_reseed()
 	resized.connect(_reseed)
@@ -23,6 +24,19 @@ func _make_bg() -> void:
 	_bg_tex.fill_to = Vector2(0.5, 1.0)
 	_bg_tex.width = 4
 	_bg_tex.height = 256
+
+	# 柔和径向光晕（替代 draw_circle 的硬边圆）
+	var rg := Gradient.new()
+	rg.set_color(0, Color(1, 1, 1, 1.0))
+	rg.add_point(0.5, Color(1, 1, 1, 0.35))
+	rg.set_color(rg.get_point_count() - 1, Color(1, 1, 1, 0.0))
+	_glow_tex = GradientTexture2D.new()
+	_glow_tex.gradient = rg
+	_glow_tex.fill = GradientTexture2D.FILL_RADIAL
+	_glow_tex.fill_from = Vector2(0.5, 0.5)
+	_glow_tex.fill_to = Vector2(1.0, 0.5)
+	_glow_tex.width = 128
+	_glow_tex.height = 128
 
 func _reseed() -> void:
 	var s := size
@@ -65,8 +79,12 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if _bg_tex:
 		draw_texture_rect(_bg_tex, Rect2(Vector2.ZERO, size), false)
-	# 一层柔和的深蓝光晕，营造大气感
-	draw_circle(size * Vector2(0.78, 1.06), size.y * 0.75, Color(0.10, 0.22, 0.45, 0.18))
+	# 一层柔和的深蓝光晕，营造大气感（径向渐变，无硬边）
+	if _glow_tex:
+		var r := size.y * 1.05
+		var c := size * Vector2(0.80, 1.12)
+		draw_texture_rect(_glow_tex, Rect2(c - Vector2(r, r), Vector2(r, r) * 2.0),
+			false, Color(0.12, 0.26, 0.55, 0.42))
 	for layer in _layers:
 		for s in layer.stars:
 			var tw: float = 0.7 + 0.3 * sin(_t * s.tw + s.ph)

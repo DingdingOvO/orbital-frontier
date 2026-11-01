@@ -8,7 +8,7 @@ config_version=5
 
 config/name="Orbital Frontier"
 config/description="Build rockets, reach orbit, land on moons. A 2D orbital sandbox."
-config/version="0.1.0"
+config/version="0.2.0"
 run/main_scene="res://src/ui/Main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"

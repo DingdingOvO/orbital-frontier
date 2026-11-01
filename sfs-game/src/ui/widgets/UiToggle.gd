@@ -29,11 +29,16 @@ func set_on(v: bool) -> void:
 	on = v
 	set_process(true)
 
+## 视觉上是 64×34 的开关，但命中区上下各扩 8px（≥48dp）
+func _has_point(point: Vector2) -> bool:
+	return Rect2(Vector2(-6, -8), size + Vector2(12, 16)).has_point(point)
+
 func _gui_input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		on = not on
 		toggled.emit(on)
 		set_process(true)
+		UiKit.haptic(6, 0.45)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_MOUSE_ENTER:

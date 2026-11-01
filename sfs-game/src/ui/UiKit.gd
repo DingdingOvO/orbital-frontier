@@ -144,7 +144,7 @@ func _gloss(ctrl: Control, radius: int, strength: float = 0.055, height_ratio: f
 	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	r.stretch_mode = TextureRect.STRETCH_SCALE
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	r.set_anchors_preset(Control.PRESET_FULL_RECT)
+	r.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	r.anchor_bottom = height_ratio
 	ctrl.add_child(r)
 
@@ -196,7 +196,7 @@ func glow_title(text: String, size: int = 60, color: Color = TEXT) -> Label:
 	l.add_theme_font_override("font", spaced_font(4, 0.02))
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
-	l.add_theme_color_override("font_shadow_color", Color(0.26, 0.58, 1.0, 0.34))
+	l.add_theme_color_override("font_shadow_color", Color(0.24, 0.55, 1.0, 0.0))
 	l.add_theme_constant_override("shadow_offset_x", 0)
 	l.add_theme_constant_override("shadow_offset_y", 2)
 	l.add_theme_constant_override("shadow_outline_size", 4)
@@ -255,6 +255,7 @@ func button(text: String, primary: bool = false, size: int = 20) -> Button:
 		sb.shadow_offset = Vector2(0, 3)
 		b.add_theme_stylebox_override("normal", sb)
 	_animate_lift(b)
+	press_fx(b)
 	return b
 
 ## 次级按钮：统一深灰底 + 纯白字（与 menu_button level 2 同一套配色）
@@ -273,6 +274,9 @@ func ghost_button(text: String, size: int = 17) -> UiIconButton:
 	b.add_theme_stylebox_override("hover", _sb(Color("2f3a4e"), Color("5b719c"), RAD_BTN, 1, 20, 11))
 	b.add_theme_stylebox_override("pressed", _sb(Color("1a2130"), Color("7db0ff"), RAD_BTN, 1, 20, 11))
 	b.add_theme_stylebox_override("disabled", _sb(Color("151b28"), Color("29334a"), RAD_BTN, 1, 20, 11))
+	# 触摸目标不小于 48px（原 45px 的次级按钮在手机上偏小）
+	b.custom_minimum_size = Vector2(maxf(b.custom_minimum_size.x, 0.0), maxf(b.custom_minimum_size.y, TOUCH_MIN))
+	press_fx(b)
 	return b
 
 ## 菜单项：大按钮 + 左侧强调条 + 悬浮右移
@@ -294,8 +298,86 @@ func menu_item(text: String, primary: bool = false, size: int = 21) -> Button:
 		_accent_bar(b, ACCENT, 3)
 	return b
 
+# ── 触屏 / 动效基础层 ─────────────────────────────────────
+## 触摸目标最小边长（Android / Material 建议 48dp）
+const TOUCH_MIN := 48
+
+func is_touch() -> bool:
+	return OS.has_feature("mobile") or DisplayServer.is_touchscreen_available()
+
+## 轻震动：仅移动端生效，桌面调用无副作用
+func haptic(ms: int = 8, amplitude: float = 0.55) -> void:
+	if OS.has_feature("mobile"):
+		Input.vibrate_handheld(ms, amplitude)
+
+## 按压反馈：按下轻微回弹 + 触感。缩放不动 layout，因此放在容器里也安全。
+func press_fx(c: Control, amount: float = 0.965) -> void:
+	if c == null:
+		return
+	c.pivot_offset = c.size * 0.5
+	if not c.resized.is_connected(_sync_pivot):
+		c.resized.connect(_sync_pivot.bind(c))
+	if c is BaseButton:
+		var b := c as BaseButton
+		b.button_down.connect(func():
+			if not is_instance_valid(b):
+				return
+			b.pivot_offset = b.size * 0.5
+			var tw := b.create_tween()
+			tw.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+			tw.tween_property(b, "scale", Vector2(amount, amount), 0.08)
+			haptic(6)
+		)
+		b.button_up.connect(func():
+			if not is_instance_valid(b):
+				return
+			var tw := b.create_tween()
+			tw.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			tw.tween_property(b, "scale", Vector2.ONE, 0.3)
+		)
+		# 手指滑出按钮取消点击时也要复位
+		b.mouse_exited.connect(func():
+			if is_instance_valid(b) and not b.button_pressed and b.scale != Vector2.ONE:
+				b.scale = Vector2.ONE
+		)
+
+func _sync_pivot(c: Control) -> void:
+	if is_instance_valid(c):
+		c.pivot_offset = c.size * 0.5
+
+## 入场：淡入 + 轻微放大回弹（不改变位置，避免与容器布局打架）
+func pop_in(c: Control, delay: float = 0.0, dur: float = 0.42,
+		from_scale: float = 0.93) -> void:
+	if c == null:
+		return
+	if c.size.x < 1.0:
+		# 还没完成布局：等一帧再播
+		await get_tree().process_frame
+		if not is_instance_valid(c):
+			return
+	c.pivot_offset = c.size * 0.5
+	c.modulate = Color(1, 1, 1, 0.0)
+	c.scale = Vector2(from_scale, from_scale)
+	var tw := c.create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(c, "modulate", Color.WHITE, maxf(0.12, dur * 0.8)) \
+		.set_delay(delay).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(c, "scale", Vector2.ONE, dur) \
+		.set_delay(delay).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+## 列表错峰入场：每个控件依次弹出，制造"界面活过来"的感觉
+func stagger(controls: Array, step: float = 0.055, delay: float = 0.0, dur: float = 0.42) -> void:
+	var i := 0
+	for c in controls:
+		if is_instance_valid(c):
+			pop_in(c, delay + step * float(i), dur)
+		i += 1
+
 ## 悬浮反馈：只改 modulate，绝不碰 position/size（容器内改 position 会与布局冲突成死循环）
 func _animate_lift(b: Button) -> void:
+	# 触屏没有"悬浮"概念：手指抬起后模拟鼠标会停在按钮上，导致按钮一直发亮
+	if is_touch():
+		return
 	b.mouse_entered.connect(func():
 		if not is_instance_valid(b):
 			return
@@ -331,6 +413,7 @@ func round_button(text: String, diameter: int = 66, size: int = 22,
 	b.add_theme_stylebox_override("pressed", _sb(CYAN, CYAN, r, 1))
 	b.add_theme_stylebox_override("disabled", _sb(PANEL_LO, STROKE, r, 1))
 	_gloss(b, r, 0.09, 0.55)
+	press_fx(b, 0.93)
 	return b
 
 # ── 菜单按钮（统一规格 + 三级对比度） ──────────────────────
@@ -362,13 +445,14 @@ func menu_button(text: String, icon: String, level: int = 2,
 	var edge: Color
 	match level:
 		0:
+			# 最高优先级：纯白底 + 纯黑字（黑白分明，一眼就是主操作）
+			bg = Color("ffffff")
+			fg = Color("0a1020")
+			edge = Color("ffffff")
+		1:
 			bg = Color("3b82f6")
 			fg = Color("ffffff")
 			edge = Color("8ab6ff")
-		1:
-			bg = Color("1e4fa8")
-			fg = Color("ffffff")
-			edge = Color("3d6fd0")
 		_:
 			bg = Color("232b3a")
 			fg = Color("ffffff")
@@ -378,9 +462,11 @@ func menu_button(text: String, icon: String, level: int = 2,
 	b.add_theme_color_override("font_color", fg)
 	b.add_theme_color_override("font_hover_color", fg)
 	b.add_theme_color_override("font_pressed_color", fg)
+	var hover_bg := bg.darkened(0.07) if level == 0 else bg.lightened(0.14)
+	var down_bg := bg.darkened(0.14) if level == 0 else bg.darkened(0.16)
 	b.add_theme_stylebox_override("normal", _sb(bg, edge, radius, 1, 18, 14))
-	b.add_theme_stylebox_override("hover", _sb(bg.lightened(0.14), edge.lightened(0.3), radius, 1, 18, 14))
-	b.add_theme_stylebox_override("pressed", _sb(bg.darkened(0.16), edge, radius, 1, 18, 14))
+	b.add_theme_stylebox_override("hover", _sb(hover_bg, edge, radius, 1, 18, 14))
+	b.add_theme_stylebox_override("pressed", _sb(down_bg, edge, radius, 1, 18, 14))
 	# 不可用状态统一为「深灰底 + 灰字」，任何层级都不会变成隐形按钮
 	b.add_theme_stylebox_override("disabled", _sb(Color("1a2130"), Color("2c3648"), radius, 1, 18, 14))
 	b.add_theme_color_override("font_disabled_color", Color("9aa8c0"))
@@ -388,11 +474,20 @@ func menu_button(text: String, icon: String, level: int = 2,
 	# 最高优先级按钮加一层外发光，和次级拉开差距
 	if level == 0:
 		var sb0 := _sb(bg, edge, radius, 1, 18, 14)
-		sb0.shadow_color = Color(0.23, 0.51, 0.96, 0.42)
-		sb0.shadow_size = 16
-		sb0.shadow_offset = Vector2(0, 4)
+		sb0.shadow_color = Color(0.55, 0.72, 1.0, 0.38)
+		sb0.shadow_size = 18
+		sb0.shadow_offset = Vector2(0, 5)
 		b.add_theme_stylebox_override("normal", sb0)
+	# 窄按钮（三个并排的小格子）：左对齐 + 给图标留位置，避免"图标压字"
+	if width < 170:
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		for st in ["normal", "hover", "pressed", "disabled", "focus"]:
+			var sb: StyleBoxFlat = b.get_theme_stylebox(st)
+			if sb:
+				sb.content_margin_left = 50
+				sb.content_margin_right = 8
 	_animate_lift(b)
+	press_fx(b, 0.97)
 	return b
 
 # ── 尺寸规范（全站统一，务必不要各处另起一套）──────────────
@@ -453,7 +548,7 @@ func page_header(nav: Control, title_key: String, texts: Array = []) -> HBoxCont
 
 	var back := ghost_button("", 15)
 	back.icon_kind = "back"
-	back.custom_minimum_size = Vector2(112, 42)
+	back.custom_minimum_size = Vector2(112, TOUCH_MIN)
 	back.pressed.connect(func():
 		if nav != null:
 			nav.go_back())
@@ -575,7 +670,7 @@ func accent_rule(width: int = 110, height: int = 3, col: Color = ACCENT) -> Cont
 	r.texture = gt
 	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	r.stretch_mode = TextureRect.STRETCH_SCALE
-	r.set_anchors_preset(Control.PRESET_FULL_RECT)
+	r.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	holder.add_child(r)
 	return holder
