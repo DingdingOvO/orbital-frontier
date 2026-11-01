@@ -197,10 +197,15 @@ func _build_stat_strip() -> Control:
 	sb.content_margin_bottom = 4.0
 	bar.add_theme_stylebox_override("panel", sb)
 
+	var wrap := Control.new()
+	wrap.custom_minimum_size = Vector2(0, 34)
+	bar.add_child(wrap)
+
 	var h := HBoxContainer.new()
+	h.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	h.add_theme_constant_override("separation", 14)
 	h.alignment = BoxContainer.ALIGNMENT_BEGIN
-	bar.add_child(h)
+	wrap.add_child(h)
 
 	for e in [["mass", "build.mass", "t"], ["dv", "build.dv", "m/s"],
 			["twr", "build.twr", ""], ["stages", "build.stages", ""]]:
@@ -223,15 +228,17 @@ func _build_stat_strip() -> Control:
 			u.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			h.add_child(u)
 
-	var sp := Control.new()
-	sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	h.add_child(sp)
-
+	# 提示独立锚在右侧：不参与 HBox 的空间分配，窗口再窄也不会被挤成 1px
 	_hint_lbl = UiKit.label("", 11, UiKit.TEXT_MUTE)
-	_hint_lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_hint_lbl.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
+	_hint_lbl.offset_left = -320
+	_hint_lbl.offset_right = -4
+	_hint_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_hint_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_hint_lbl.clip_text = true
+	_hint_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_texts.append({"node": _hint_lbl, "key": "build.free"})
-	h.add_child(_hint_lbl)
+	wrap.add_child(_hint_lbl)
 	return bar
 
 # ══ 建造逻辑 ══════════════════════════════════════════════
@@ -357,6 +364,19 @@ func _design() -> Array:
 		ids.append(str(it["id"]))
 	ids.reverse()
 	return ids
+
+## 贴地零件的横向占用（网格列），用来画发射台
+func _base_span() -> Vector2:
+	var lo := 1e9
+	var hi := -1e9
+	for it in _inst:
+		if int(it["gy"]) != 0:
+			continue
+		var id := str(it["id"])
+		var gx := int(it["gx"])
+		lo = minf(lo, float(gx))
+		hi = maxf(hi, float(gx + cols_of(id)))
+	return Vector2(lo, hi)
 
 func _bounds() -> Rect2i:
 	if _inst.is_empty():
@@ -657,6 +677,15 @@ class Board extends Control:
 		# 地面
 		if oy > _top and oy < _bottom:
 			draw_line(Vector2(_left, oy), Vector2(_right, oy), Color(0.35, 0.62, 1.0, 0.55), 2.0)
+
+		# 发射台：让引擎喷管"坐"在台上，而不是穿过地面线
+		if not host._inst.is_empty():
+			var span: Vector2 = host._base_span()
+			if span.y > span.x:
+				var px0 := ox + span.x * CELL * s - 20.0
+				var px1 := ox + span.y * CELL * s + 20.0
+				draw_rect(Rect2(px0, oy - 1.0, px1 - px0, 18.0), Color(0.075, 0.115, 0.190, 1.0), true)
+				draw_line(Vector2(px0, oy), Vector2(px1, oy), Color(0.50, 0.70, 1.0, 0.85), 2.0)
 
 		# 拖拽落点高亮
 		if _dragging and _press_idx >= 0:
