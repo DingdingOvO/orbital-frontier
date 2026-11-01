@@ -76,7 +76,7 @@ func _build() -> void:
 	_texts.append({"node": cr, "key": "about.credits"})
 	v3.add_child(cr)
 	var ver := UiKit.label("", UiKit.FS_TINY, UiKit.TEXT_MUTE)
-	_texts.append({"node": ver, "key": "app.version", "args": {"v": "0.2.0"}})
+	_texts.append({"node": ver, "key": "app.version", "args": {"v": "0.3.0"}})
 	v3.add_child(ver)
 
 ## 平台行：状态点 + 名称 + 说明（note 以 "about." 开头则视为本地化 key）

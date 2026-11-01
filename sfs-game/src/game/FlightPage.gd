@@ -63,6 +63,7 @@ var _autosave_t := 0.0
 var _traj_pts: PackedVector2Array = PackedVector2Array()
 var _traj_timer := 0.0
 var _telemetry_t := 0.0
+var _hud: Control
 
 func set_nav(n: Control) -> void:
 	nav = n
@@ -109,6 +110,9 @@ func on_enter(payload: Dictionary) -> void:
 	if _autofly:
 		warp_idx = 2          # 演示跑 25× 加速，几十秒内就能入轨
 	cam_mode = CamMode.FOLLOW
+	for a in OS.get_cmdline_user_args():
+		if a == "--map":
+			cam_mode = CamMode.MAP   # 调试/截图：直接进地图视角
 	cam_free = false
 	throttle = 0.0
 	steer = 0.0
@@ -128,18 +132,39 @@ func on_enter(payload: Dictionary) -> void:
 		# 开场：从远景缓推到发射台（旧实现漏了这一步调用，动画从未播放）
 		_play_intro()
 
+func on_safe_area() -> void:
+	if _hud:
+		_apply_hud_safe()
+
+func _apply_hud_safe() -> void:
+	if _hud == null:
+		return
+	var sf := UiKit.safe
+	_hud.offset_left = sf.x
+	_hud.offset_top = sf.y
+	_hud.offset_right = -sf.z
+	_hud.offset_bottom = -sf.w
+
 func on_exit() -> void:
 	if _cam_tween and _cam_tween.is_valid():
 		_cam_tween.kill()
 
 # ── HUD 构建 ──────────────────────────────────────────────
 func _build_hud() -> void:
+	# 所有 HUD 放进一个按安全区内缩的容器：
+	# 世界（行星/地图）仍然满屏画到刘海下面，只有控件避让。
+	_hud = Control.new()
+	_hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_hud)
+	_apply_hud_safe()
+
 	# 左上：飞行数据卡
 	var flight := UiKit.glass(0.93, 14, 14)
 	flight.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	flight.position = Vector2(18, 16)
 	flight.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(flight)
+	_hud.add_child(flight)
 	var fv := VBoxContainer.new()
 	fv.add_theme_constant_override("separation", 2)
 	flight.add_child(fv)
@@ -155,7 +180,7 @@ func _build_hud() -> void:
 	mission.offset_top = 16
 	mission.offset_right = -18
 	mission.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(mission)
+	_hud.add_child(mission)
 	var mv := VBoxContainer.new()
 	mv.add_theme_constant_override("separation", 2)
 	mission.add_child(mv)
@@ -173,7 +198,7 @@ func _build_hud() -> void:
 	guide.offset_right = 240
 	guide.offset_top = 16
 	guide.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(guide)
+	_hud.add_child(guide)
 	_lbl_guide = UiKit.label("", 17, UiKit.CYAN)
 	_lbl_guide.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_lbl_guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -187,7 +212,7 @@ func _build_hud() -> void:
 	bar.offset_top = -110
 	bar.offset_bottom = -14
 	bar.add_theme_constant_override("separation", 10)
-	add_child(bar)
+	_hud.add_child(bar)
 	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# 节流
@@ -266,7 +291,7 @@ func _build_hud() -> void:
 	back.offset_right = 196
 	back.offset_bottom = 200
 	back.pressed.connect(func(): nav.show_page("workshop"))
-	add_child(back)
+	_hud.add_child(back)
 	_texts.append({"node": back, "key": "hud.revert", "prefix": "←  "})
 
 ## HUD 分组小标题
@@ -706,7 +731,10 @@ func _show_result(text: String, col: Color) -> void:
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_result_panel.add_child(l)
-	add_child(_result_panel)
+	if _hud:
+		_hud.add_child(_result_panel)
+	else:
+		add_child(_result_panel)
 	var tw := create_tween()
 	tw.tween_interval(3.4)
 	tw.tween_property(_result_panel, "modulate:a", 0.0, 0.6)

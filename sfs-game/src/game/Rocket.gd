@@ -222,18 +222,16 @@ func delta_v() -> float:
 				upper += Parts.dry_mass(parts[i]) + Parts.fuel_cap(parts[i])
 		var m0 := dry + fuel_kg + upper
 		var m1 := dry + upper
-		if m1 > 0.0 and m0 > m1:
-			var isp := 300.0
-			# 用该级引擎的平均真空比冲
-			var n := 0
-			var s := 0.0
-			for i in stages[si]:
-				if Parts.is_engine(parts[i]):
-					s += float(Parts.def(parts[i]).get("isp_vac", 300.0))
-					n += 1
-			if n > 0:
-				isp = s / n
-			dv += isp * G0 * log(m0 / m1)
+		# 没有引擎的级不产生推力，也就没有 Δv（旧实现给了个 300 s 的默认比冲，
+		# 导致"只有燃料箱"的设计也会显示几千 m/s，读数完全不可信）
+		var n := 0
+		var s := 0.0
+		for i in stages[si]:
+			if Parts.is_engine(parts[i]):
+				s += float(Parts.def(parts[i]).get("isp_vac", 300.0))
+				n += 1
+		if n > 0 and m1 > 0.0 and m0 > m1:
+			dv += (s / float(n)) * G0 * log(m0 / m1)
 	return dv
 
 # ── 燃料消耗 ──────────────────────────────────────────────

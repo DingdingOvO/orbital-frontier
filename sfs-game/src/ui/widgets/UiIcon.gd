@@ -62,6 +62,14 @@ func _draw() -> void:
 		"plus":
 			draw_line(c + Vector2(-7.0, 0.0) * s, c + Vector2(7.0, 0.0) * s, tint, 2.4 * s)
 			draw_line(c + Vector2(0.0, -7.0) * s, c + Vector2(0.0, 7.0) * s, tint, 2.4 * s)
+		"undo":
+			draw_arc(c + Vector2(0.0, 0.8) * s, 6.6 * s, -PI * 0.42, PI * 1.18, 24, tint, 2.2 * s)
+			var a0 := -PI * 0.42
+			var p0 := c + Vector2(cos(a0), sin(a0)) * 6.6 * s
+			draw_polyline(PackedVector2Array([
+				p0 + Vector2(-0.6, -4.6) * s,
+				p0 + Vector2(0.2, 0.2) * s,
+				p0 + Vector2(4.6, -0.4) * s]), tint, 2.2 * s)
 		"trash":
 			draw_line(c + Vector2(-7.0, -5.0) * s, c + Vector2(7.0, -5.0) * s, tint, 2.2 * s)
 			draw_rect(Rect2(c + Vector2(-5.5, -5.0) * s, Vector2(11.0, 13.0) * s), tint, false, 2.2 * s)

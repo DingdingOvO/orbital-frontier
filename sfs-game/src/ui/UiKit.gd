@@ -28,6 +28,13 @@ const FONT_DIR := "res://assets/fonts/"
 const UiIconScript := preload("res://src/ui/widgets/UiIcon.gd")
 
 var theme: Theme
+
+## 安全区内缩（像素，左/上/右/下）：由 Main 在启动与窗口尺寸变化时写入
+## 页面里的「内容」用它避让刘海/圆角/手势条，但全屏画面（星空、行星、地图）不受影响
+var safe := Vector4.ZERO
+
+## 安全区变化：所有用 page_scaffold 的页面自动跟随（旋转屏幕/进入/退出全屏）
+signal safe_changed(v: Vector4)
 # 中文字体（思源黑体 多字重，静态实例 —— 之前用的是可变字体的 wght=100 超细默认实例，所以又细又糊）
 var font_ui: FontFile
 var font_ui_bold: FontFile
@@ -570,10 +577,10 @@ func page_header(nav: Control, title_key: String, texts: Array = []) -> HBoxCont
 func page_scaffold(nav: Control, title_key: String, texts: Array) -> Dictionary:
 	var root := VBoxContainer.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.offset_left = 56
-	root.offset_right = -56
-	root.offset_top = 28
-	root.offset_bottom = -24
+	_apply_scaffold_insets(root, safe)
+	safe_changed.connect(func(v: Vector4):
+		if is_instance_valid(root):
+			_apply_scaffold_insets(root, v))
 	root.add_theme_constant_override("separation", 0)
 
 	var head := page_header(nav, title_key, texts)
@@ -593,6 +600,13 @@ func page_scaffold(nav: Control, title_key: String, texts: Array) -> Dictionary:
 	root.add_child(body)
 
 	return {"root": root, "head": head, "body": body}
+
+## 页边距 + 安全区（刘海/圆角/手势条）
+func _apply_scaffold_insets(root: Control, v: Vector4) -> void:
+	root.offset_left = 56.0 + v.x
+	root.offset_right = -(56.0 + v.z)
+	root.offset_top = 28.0 + v.y
+	root.offset_bottom = -(24.0 + v.w)
 
 ## 统一的空状态（列表为空时用）
 func empty_state(hint_key: String, texts: Array) -> Control:

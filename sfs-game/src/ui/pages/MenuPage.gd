@@ -144,7 +144,7 @@ func _build() -> void:
 	_ver.offset_top = -38
 	_ver.offset_right = SIDE + 260
 	_ver.offset_bottom = -16
-	_texts.append({"node": _ver, "key": "app.version", "args": {"v": "0.2.0"}})
+	_texts.append({"node": _ver, "key": "app.version", "args": {"v": "0.3.0"}})
 	add_child(_ver)
 
 	_hint = UiKit.label("", 12, Color(0.72, 0.80, 0.93, 0.55))
@@ -226,19 +226,26 @@ func _build_resume_children() -> void:
 	chev.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(chev)
 
+func on_safe_area() -> void:
+	_apply_layout()
+
 func _apply_layout() -> void:
 	var narrow := size.x < 900.0
-	var side := 32.0 if narrow else SIDE
+	var sf := UiKit.safe
+	var side := (32.0 if narrow else SIDE) + sf.x
 	_left.offset_left = side
 	_left.offset_right = side + W + 16.0
-	_left.offset_top = 74.0
-	_left.offset_bottom = -56.0
+	_left.offset_top = 74.0 + sf.y
+	_left.offset_bottom = -56.0 - sf.w
 	_ver.offset_left = side
+	_ver.offset_bottom = -18.0 - sf.w
 	_hint.offset_left = -side - 380.0
 	_hint.offset_right = -side
+	_hint.offset_bottom = -18.0 - sf.w
 	if _lang:
 		_lang.offset_left = -(side + 4.0 + 58.0 * 3.0 + 8.0)
 		_lang.offset_right = -side
+		_lang.offset_top = 22.0 + sf.y
 
 func _play_entrance() -> void:
 	var seq: Array = [_kicker, _logo, _sub, _rule, _start, _resume, _row, _quit, _lang, _ver, _hint]

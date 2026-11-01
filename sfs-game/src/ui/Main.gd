@@ -31,8 +31,11 @@ func _ready() -> void:
 	_bg_layer = StarfieldBg.new()
 	add_child(_bg_layer)
 
+	# 页面根节点始终满屏：飞行页的行星/地图必须画到刘海下面去，
+	# 只有各页自己的 UI 内容按 UiKit.safe 内缩。
 	_page_root = Control.new()
 	_page_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_page_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_page_root.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(_page_root)
 
@@ -222,12 +225,18 @@ func _apply_safe_area() -> void:
 			t = clampf(float(safe.position.y) / float(scr.y), 0.0, 0.12)
 			r = clampf(1.0 - float(safe.position.x + safe.size.x) / float(scr.x), 0.0, 0.12)
 			b = clampf(1.0 - float(safe.position.y + safe.size.y) / float(scr.y), 0.0, 0.12)
-	if _page_root == null:
-		return
-	_page_root.offset_left = size.x * l
-	_page_root.offset_top = size.y * t
-	_page_root.offset_right = -size.x * r
-	_page_root.offset_bottom = -size.y * b
+	# 调试：--safe-test 模拟刘海屏（左右各 56px、上下各 24px）
+	for a in OS.get_cmdline_user_args():
+		if a == "--safe-test":
+			l = 56.0 / maxf(size.x, 1.0)
+			r = 56.0 / maxf(size.x, 1.0)
+			t = 24.0 / maxf(size.y, 1.0)
+			b = 24.0 / maxf(size.y, 1.0)
+	UiKit.safe = Vector4(size.x * l, size.y * t, size.x * r, size.y * b)
+	UiKit.safe_changed.emit(UiKit.safe)
+	for p in _pages.values():
+		if is_instance_valid(p) and p.has_method("on_safe_area"):
+			p.on_safe_area()
 
 # ── 启动动画 ─────────────────────────────────────────────
 func _play_boot() -> void:
